@@ -146,6 +146,11 @@ public class FileManipulation implements DataManipulation {
         return null;
     }
 
+    @Override
+    public String findLargestPostID() {
+        return null;
+    }
+
     class FullInformation {
         int runTime;
         String information;

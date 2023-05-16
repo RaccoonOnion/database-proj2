@@ -9,4 +9,5 @@ public interface DataManipulation {
     public String continentsWithCountryCount();
     public String FullInformationOfMoviesRuntime(int min, int max);
     public String findMovieById(int id);
+    public String findLargestPostID();
 }

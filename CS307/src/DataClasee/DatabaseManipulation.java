@@ -145,7 +145,6 @@ public class DatabaseManipulation implements DataManipulation {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
                 sb.append(resultSet.getString("runtime")).append("\t");
-
             }
 
         }catch (SQLException e) {
@@ -153,6 +152,27 @@ public class DatabaseManipulation implements DataManipulation {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public String findLargestPostID() {
+        {
+            StringBuilder sb = new StringBuilder();
+            String sql = "select post_id from post order by post_id desc limit 1;";
+            try {
+                PreparedStatement preparedStatement = con.prepareStatement(sql);
+                resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()){
+                    sb.append(resultSet.getString("runtime")).append("\t");
+                }
+
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return sb.toString();
+        }
+
     }
 
 }

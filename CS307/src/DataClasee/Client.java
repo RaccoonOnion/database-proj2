@@ -6,8 +6,10 @@ public class Client {
         try {
             DataManipulation dm = new DataFactory().createDataManipulation(args[0]);
             dm.openDatasource();
-            System.out.println(dm.FullInformationOfMoviesRuntime(65, 75));
-            System.out.println(dm.findMovieById(10));
+//            System.out.println(dm.FullInformationOfMoviesRuntime(65, 75));
+//            System.out.println(dm.findMovieById(10));
+            System.out.println(dm.findLargestPostID());
+
             dm.closeDatasource();
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());

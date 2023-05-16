@@ -18,6 +18,8 @@ public class Loader {// 批处理
     sql语句从客户端发送到服务端，一次发送一句
     批处理：一次发送BATCH_SIZE 语句
      */
+
+    private static boolean login;
     private final static int BATCH_SIZE = 10000;
     private static Connection con = null;
     private static PreparedStatement stmt = null;
@@ -38,7 +40,7 @@ public class Loader {// 批处理
             con = DriverManager.getConnection(url, prop);
             if (con != null) {
                 System.out.println("Successfully connected to the database "
-                    + prop.getProperty("database") + " as " + prop.getProperty("user"));
+                        + prop.getProperty("database") + " as " + prop.getProperty("user"));
                 con.setAutoCommit(false);
             }
         } catch (SQLException e) {
@@ -53,15 +55,13 @@ public class Loader {// 批处理
             stmt = null;
             String statement = "INSERT INTO public." + tableName + " (";
             String value = "VALUES (";
-            for (int i = 0; i < attributeNames.length; i++)
-            {
+            for (int i = 0; i < attributeNames.length; i++) {
                 statement += attributeNames[i];
                 value += "?";
-                if (i == attributeNames.length -1){
+                if (i == attributeNames.length - 1) {
                     statement += ") ";
                     value += ");";
-                }
-                else{
+                } else {
                     statement += ", ";
                     value += ",";
                 }
@@ -217,14 +217,14 @@ public class Loader {// 批处理
         Properties prop = loadDBUser();
         int cntTotal = 0;
 
-        String[] tableNames = {"category","account","post","post_category","reply","liked","favored","shared","follow"};
+        String[] tableNames = {"category", "account", "post", "post_category", "reply", "liked", "favored", "shared", "follow"};
         //表名
         String[] attributeCat = {"category_name"};
-        String[] attributeAcc = {"account_id","name","registration_time","phone"};
-        String[] attributePost = {"post_id","title","content","datetime","city","post_account_name"};
-        String[] attributeReply = {"reply_id","content","stars","post_id","author_account_name"};
-        String[] attributeLFS = {"account_name","post_id"};
-        String[] attributeFol = {"follower_name","followee_name"};
+        String[] attributeAcc = {"account_id", "name", "registration_time", "phone"};
+        String[] attributePost = {"post_id", "title", "content", "datetime", "city", "post_account_name"};
+        String[] attributeReply = {"reply_id", "content", "stars", "post_id", "author_account_name"};
+        String[] attributeLFS = {"account_name", "post_id"};
+        String[] attributeFol = {"follower_name", "followee_name"};
         String[] attributePC = {"category_name", "post_id"};
 
 //        Map<String, String[]> name2Attribute = new HashMap<>();
@@ -238,11 +238,13 @@ public class Loader {// 批处理
 
         openDB(prop);
         Regisiter();
+        Like();
 //        for (int i = 0; i < tableNames.length; i++){
 //            int cnt = 0;
 //            List<String> lines = loadCSVFile(tableNames[i]);
 //            String tableName = tableNames[i];
 //            //目前需要插入的表 -> tableName
+
 //            boolean ifLFS = tableName.equals("liked") || tableName.equals("favored") || tableName.equals("shared");
 //            if (ifLFS){
 //                setPrepareStatement(tableName, name2Attribute.get("LFS"));
@@ -295,20 +297,80 @@ public class Loader {// 批处理
         closeDB();
 
         long end = System.currentTimeMillis();
-        System.out.println("Elapsed time: "+(end - start)+"ms");
+        System.out.println("Elapsed time: " + (end - start) + "ms");
         System.out.println(cntTotal + " records successfully loaded");
         System.out.println("Loading speed : " + (cntTotal * 1000L) / (end - start) + " records/s");
 
     }
 
-    private static void Regisiter(){
-//      String[] attributeAcc = {"account_id","name","registration_time","phone"};
+    private static void Regisiter() {
         System.out.println("Please enter your name and phone number, separated by a space or a line break");
         String name = input.next();
         String phone = input.next();
-        setPrepareStatement("account",name2Attribute.get("account"));
-        String line = String.format("%s;%s;%s;%s",generateRandomID(18),name,new Timestamp(System.currentTimeMillis()).toString(),phone);
+        setPrepareStatement("account", name2Attribute.get("account"));
+        String line = String.format("%s;%s;%s;%s", generateRandomID(18), name, new Timestamp(System.currentTimeMillis()).toString(), phone);
         loadData2(line);
+        try {
+            con.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void Like() {
+        System.out.println("Please enter your name and the id of the post, separated by a space or a line break");
+        String name = input.next();
+        long postID = input.nextLong();
+        setPrepareStatement("liked", name2Attribute.get("LFS"));
+        String line = String.format("%s;%s", name, String.valueOf(postID));
+        loadData4(line);
+        try {
+            con.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void Favorite() {
+//      String[] attributeAcc = {"account_id","name","registration_time","phone"};
+        System.out.println("Please enter your name and the id of the post, separated by a space or a line break");
+        String name = input.next();
+        long postID = input.nextLong();
+        setPrepareStatement("favored", name2Attribute.get("LFS"));
+        String line = String.format("%s;%s", name, String.valueOf(postID));
+        loadData4(line);
+        try {
+            con.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void Share() {
+//      String[] attributeAcc = {"account_id","name","registration_time","phone"};
+        System.out.println("Please enter your name and the id of the post, separated by a space or a line break");
+        String name = input.next();
+        long postID = input.nextLong();
+        setPrepareStatement("shared", name2Attribute.get("LFS"));
+        String line = String.format("%s;%s", name, String.valueOf(postID));
+        loadData4(line);
+        try {
+            con.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void Posting() {
+
+        System.out.println("Please enter the title, content, city and your name, separated by a space or a line break");
+        String title = input.next();
+        String content = input.next();
+        String city = input.next();
+        String name = input.next();
+        setPrepareStatement("post", name2Attribute.get("post"));
+//        String line = String.format("%s;%s;%s;%s", name, String.valueOf(postID));
+//        loadData4(line);
         try {
             con.commit();
         } catch (SQLException e) {
