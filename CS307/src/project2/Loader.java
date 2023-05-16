@@ -7,7 +7,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.sql.*;
-import java.io.*;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -26,6 +25,9 @@ public class Loader {// 批处理
     private static QReader input = new QReader();
     private static QWriter out = new QWriter();
     private static Map<String, String[]> name2Attribute = new HashMap<>();
+    private static boolean logined = false;
+    private static String name;
+    private static String phone;
 
 
     private static void openDB(Properties prop) {
@@ -126,7 +128,6 @@ public class Loader {// 批处理
             try {
                 stmt.setString(1, lineData[0]);
                 stmt.setString(2, lineData[1]);
-//                System.out.println(lineData[2]);
                 Timestamp ts = Timestamp.valueOf(lineData[2]);
                 stmt.setTimestamp(3, ts);
                 stmt.setString(4, lineData[3]);
@@ -196,6 +197,23 @@ public class Loader {// 批处理
         }
     }
 
+    private static void loadData6_proj2(String line) { //post_proj2
+        String[] lineData = line.split(";");
+        if (con != null) {
+            try {
+                stmt.setString(1, lineData[0]);
+                stmt.setString(2, lineData[1]);
+                Timestamp ts = Timestamp.valueOf(lineData[2]);
+                stmt.setTimestamp(3, ts);
+                stmt.setString(4, lineData[3]);
+                stmt.setString(5, lineData[4]);
+                stmt.executeUpdate();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
     private static void loadData7(String line) { //post_category
         String[] lineData = line.split(";");
         if (con != null) {
@@ -217,11 +235,12 @@ public class Loader {// 批处理
         Properties prop = loadDBUser();
         int cntTotal = 0;
 
-        String[] tableNames = {"category", "account", "post", "post_category", "reply", "liked", "favored", "shared", "follow"};
+        String[] tableNames = {"category", "account", "post", "post_category", "reply", "liked", "favored", "shared", "follow","post_proj2"};
         //表名
         String[] attributeCat = {"category_name"};
         String[] attributeAcc = {"account_id", "name", "registration_time", "phone"};
         String[] attributePost = {"post_id", "title", "content", "datetime", "city", "post_account_name"};
+        String[] attributePost_proj2 = {"title", "content", "datetime", "city", "post_account_name"};
         String[] attributeReply = {"reply_id", "content", "stars", "post_id", "author_account_name"};
         String[] attributeLFS = {"account_name", "post_id"};
         String[] attributeFol = {"follower_name", "followee_name"};
@@ -235,10 +254,15 @@ public class Loader {// 批处理
         name2Attribute.put("LFS", attributeLFS);
         name2Attribute.put(tableNames[8], attributeFol);
         name2Attribute.put(tableNames[3], attributePC);
+        name2Attribute.put(tableNames[9],attributePost_proj2);
 
         openDB(prop);
-        Regisiter();
-        Like();
+//        Regisiter();
+//        Like();
+//        Posting();
+//        Reply();
+//          Follow();
+            Unfollow();
 //        for (int i = 0; i < tableNames.length; i++){
 //            int cnt = 0;
 //            List<String> lines = loadCSVFile(tableNames[i]);
@@ -304,9 +328,11 @@ public class Loader {// 批处理
     }
 
     private static void Regisiter() {
+        System.out.println("\nRegistration in progress:");
         System.out.println("Please enter your name and phone number, separated by a space or a line break");
-        String name = input.next();
-        String phone = input.next();
+        String name = input.nextLine();
+        String phone = input.nextLine();
+        //检测输入的合法性
         setPrepareStatement("account", name2Attribute.get("account"));
         String line = String.format("%s;%s;%s;%s", generateRandomID(18), name, new Timestamp(System.currentTimeMillis()).toString(), phone);
         loadData2(line);
@@ -333,7 +359,7 @@ public class Loader {// 批处理
 
     private static void Favorite() {
 //      String[] attributeAcc = {"account_id","name","registration_time","phone"};
-        System.out.println("Please enter your name and the id of the post, separated by a space or a line break");
+        System.out.println("\nPlease enter your name and the id of the post, separated by a space or a line break");
         String name = input.next();
         long postID = input.nextLong();
         setPrepareStatement("favored", name2Attribute.get("LFS"));
@@ -362,16 +388,61 @@ public class Loader {// 批处理
     }
 
     private static void Posting() {
-
+        System.out.println("\nPosting:");
         System.out.println("Please enter the title, content, city and your name, separated by a space or a line break");
         String title = input.next();
         String content = input.next();
         String city = input.next();
         String name = input.next();
-        setPrepareStatement("post", name2Attribute.get("post"));
-//        String line = String.format("%s;%s;%s;%s", name, String.valueOf(postID));
-//        loadData4(line);
+        setPrepareStatement("post", name2Attribute.get("post_proj2"));
+        String line = String.format("%s;%s;%s;%s;%s",title,content, new Timestamp(System.currentTimeMillis()).toString(),city,name);
+        loadData6_proj2(line);
         try {
+            con.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void Reply(){
+//        String[] attributeReply = {"reply_id", "content", "stars", "post_id", "author_account_name"};
+        System.out.println("Please enter the replyid , postid , content , name of your reply");
+        int replyid = input.nextInt();
+        int postid = input.nextInt();
+        String content = input.nextLine();
+        String name = input.nextLine();
+        setPrepareStatement("reply",name2Attribute.get("reply"));
+        String line = String.format("%s;%s;%s;%s;%s",String.valueOf(replyid),content,"0",String.valueOf(postid),name);
+        loadData3(line);
+        try {
+            con.commit();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private static void Follow(){
+        System.out.println("Please enter the name of the author you wish to follow and your name");
+        String Followed_name = input.nextLine();
+        String Follower_name = input.nextLine();
+        setPrepareStatement("follow",name2Attribute.get("follow"));
+        String line = String.format("%s;%s",Follower_name,Followed_name);
+        loadData5(line);
+        try {
+            con.commit();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private static void Unfollow(){
+        System.out.println("\nUnfollowing: ");
+        System.out.println("Please enter the name of the author you wish to follow and your name");
+        String Followee_name = input.nextLine();
+        String Follower_name = input.nextLine();
+        String statement = String.format("DELETE FROM follow WHERE follower_name = '%s' and followee_name = '%s';",Follower_name,Followee_name);
+        try {
+            stmt = con.prepareStatement(statement);
             con.commit();
         } catch (SQLException e) {
             e.printStackTrace();
