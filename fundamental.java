@@ -1,5 +1,5 @@
 //package project2;
- 
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +34,7 @@ public class fundamental {// 批处理
             con = DriverManager.getConnection(url, prop);
             if (con != null) {
                 System.out.println("Successfully connected to the database "
-                        + prop.getProperty("database") + " as " + prop.getProperty("user"));
+                    + prop.getProperty("database") + " as " + prop.getProperty("user"));
                 con.setAutoCommit(false);
             }
         } catch (SQLException e) {
@@ -89,7 +89,7 @@ Place to perform actions
     private static ArrayList<Integer> showLFSList(String account_name, String type){
         ArrayList<Integer> postList = new ArrayList<>();
         String sql = String.format("SELECT post_id FROM %s WHERE account_name = '%s';",
-                type, account_name);
+            type, account_name);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -115,7 +115,7 @@ Place to perform actions
     private static ArrayList<String> showFollowList(String account_name){
         ArrayList<String> followList = new ArrayList<>();
         String sql = String.format("SELECT followee_name FROM follow WHERE follower_name = '%s';",
-                account_name);
+            account_name);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -152,7 +152,7 @@ Place to perform actions
         postList.add(cityList);
 
         String sql = String.format("SELECT * FROM post WHERE post_account_name = '%s';",
-                account_name);
+            account_name);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -186,7 +186,7 @@ Place to perform actions
     private static ArrayList<Integer> showMyReply(String account_name){
         ArrayList<Integer> replyList = new ArrayList<>();
         String sql = String.format("SELECT distinct post_id FROM reply WHERE author_account_name = '%s';",
-                account_name);
+            account_name);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -205,10 +205,10 @@ Place to perform actions
         }
     }
 
-    private static void regisiterNewUser(String name, String phone) {
+    private static void registerNewUser(String name, String phone) {
         name.replaceAll("'","''");
         String sql = String.format("insert into account(name,account_id,registration_time,phone) VALUES ('%s','%s','%s','%s');",
-                name, generateRandomID(18), new Timestamp(System.currentTimeMillis()).toString(), phone);
+            name, generateRandomID(18), new Timestamp(System.currentTimeMillis()).toString(), phone);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -228,7 +228,7 @@ Place to perform actions
     private static void likePost(String name, long postID) {
         name.replaceAll("'","''");
         String sql = String.format("insert into liked(account_name,post_id) VALUES ('%s','%s');",
-                name,postID);
+            name,postID);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -249,7 +249,7 @@ Place to perform actions
     private static void favoritePost(String name, long postID) {
         name.replaceAll("'","''");
         String sql = String.format("insert into favored (account_name,post_id) VALUES ('%s','%s');",
-                name,postID);
+            name,postID);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -269,7 +269,7 @@ Place to perform actions
     private static void sharePost(String name, long postID) {
         name.replaceAll("'","''");
         String sql = String.format("insert into shared(account_name,post_id) VALUES ('%s','%s');",
-                name,postID);
+            name,postID);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -292,7 +292,7 @@ Place to perform actions
         city.replaceAll("'","''");
         name.replaceAll("'","''");
         String sql = String.format("insert into post(title,content,datetime,city,post_account_name) VALUES ('%s','%s','%s','%s','%s');",
-                title, content, new Timestamp(System.currentTimeMillis()).toString(), city, name);
+            title, content, new Timestamp(System.currentTimeMillis()).toString(), city, name);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -305,15 +305,15 @@ Place to perform actions
     }
 
     /*
-    Relpy 回复帖子：
+    Reply 回复帖子：
      */
 
 
-    private static void reply(int replyid, int postid, String content, String name) {
+    private static void reply(int replyId, int postId, String content, String name) {
         content.replaceAll("'","''");
         name.replaceAll("'","''");
         String sql = String.format("insert into reply(reply_id,content,stars,post_id,post_account_name) VALUES ('%s','%s','%s','%s','%s');",
-                replyid,postid,content,0,name);
+            replyId,postId,content,0,name);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -328,7 +328,7 @@ Place to perform actions
     private static void followUser(String followerName, String followeeName) {
         followerName.replaceAll("'","''");
         String sql = String.format("insert into follow(follower_name,followee_name) VALUES ('%s','%s');",
-                followeeName,followerName);
+            followeeName,followerName);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
@@ -344,7 +344,7 @@ Place to perform actions
         followerName.replaceAll("'","''");
         followeeName.replaceAll("'","''");
         String sql = String.format("DELETE FROM follow WHERE follower_name = '%s' and followee_name = '%s';",
-                followerName,followeeName);
+            followerName,followeeName);
         System.out.println("Executing sql command: " + sql);
         try {
             if (con != null && stmt1 == null) {
