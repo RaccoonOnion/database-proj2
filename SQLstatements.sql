@@ -112,29 +112,23 @@ create table follow
         references account (name)
 );
 
---post表插入时 自动赋值主键 post_id
-CREATE OR REPLACE FUNCTION set_post_id() RETURNS TRIGGER AS
-$$
-DECLARE
-    max_post_id bigint;
+
+--检测插入post_category的数据是否存在category表中的trigger
+
+CREATE OR REPLACE FUNCTION insert_category_if_not_exists()
+RETURNS TRIGGER AS $$
 BEGIN
-    SELECT COALESCE(MAX(post_id), 0) + 1 INTO max_post_id FROM post;
-    NEW.post_id := max_post_id;
+    -- 检查是否存在对应的 category
+    IF NOT EXISTS (SELECT 1 FROM category WHERE category_name = NEW.category_name) THEN
+        -- 在 category 表中插入新的 category 信息
+        INSERT INTO category (category_name) VALUES (NEW.category_name);
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_post_id_trigger
-    BEFORE INSERT
-    ON post
-    FOR EACH ROW
-EXECUTE FUNCTION set_post_id();
-
-
-
--- insert into account(name,account_id,registration_time,phone) VALUES ('Tom','6231795690XX58819X','2023-05-19 23:46:14.936','1008801231237981');
--- select * from account where name = 'Tom';
--- delete from account where name = 'Tom';
---
--- select * from liked where account_name = 'Tom';
--- select * from post where post_account_name = 'Tom';
+-- 创建触发器
+CREATE TRIGGER insert_category_trigger
+BEFORE INSERT ON post_category
+FOR EACH ROW
+EXECUTE FUNCTION insert_category_if_not_exists();
