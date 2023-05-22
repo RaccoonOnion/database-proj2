@@ -83,7 +83,7 @@ public class Test {
 //        likedInserting(fundamental);
 //        sharedInserting(fundamental);
 //        favoredInserting(fundamental);
-//        followInserting(fundamental);
+        followInserting(fundamental);
 
         closeDB();
 
@@ -172,6 +172,9 @@ public class Test {
                 fundamental.followUser(follower, following);
             }
         }
+    }
+    public static void replyInserting(Fundamental fundamental){
+
     }
 
 

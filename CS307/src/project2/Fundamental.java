@@ -219,20 +219,20 @@ public class Fundamental {// 批处理
         }
     }
 
-//    protected void category(String title, String content, String city, String name) {
-//        title = title.replaceAll("'","''");
-//        content = content.replaceAll("'","''");
-//        city = city.replaceAll("'","''");
-//        name = name.replaceAll("'","''");
-//        String sql = String.format("insert into post(title,content,datetime,city,post_account_name) VALUES ('%s','%s','%s','%s','%s');",
-//                title, content, new Timestamp(System.currentTimeMillis()).toString(), city, name);
-//        System.out.println("Executing sql command: " + sql);
-//        try {
-//            stmt1.execute(sql);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    protected void category(String title, String content, String city, String name) {
+        title = title.replaceAll("'","''");
+        content = content.replaceAll("'","''");
+        city = city.replaceAll("'","''");
+        name = name.replaceAll("'","''");
+        String sql = String.format("insert into post(title,content,datetime,city,post_account_name) VALUES ('%s','%s','%s','%s','%s');",
+                title, content, new Timestamp(System.currentTimeMillis()).toString(), city, name);
+        System.out.println("Executing sql command: " + sql);
+        try {
+            stmt1.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     /*
     Reply 回复帖子：
@@ -318,8 +318,7 @@ public class Fundamental {// 批处理
         return null;
     }
 
-
-    public static ArrayList<String> getAllAccountNames() {
+    public ArrayList<String> getAllAccountNames() {
             ArrayList<String> accountNames = new ArrayList<>();
             String sql = "SELECT name FROM account;";
             System.out.println("Executing sql command: " + sql);
@@ -351,7 +350,20 @@ public class Fundamental {// 批处理
         }
     }
 
-
+    public int getMaxPostId() {
+        String sql = "SELECT MAX(post_id) AS max_post_id FROM post;";
+        System.out.println("Executing SQL command: " + sql);
+        try {
+            resultSet = stmt1.executeQuery(sql);
+            if (resultSet.next()) {
+                int maxPostId = resultSet.getInt("max_post_id");
+                return maxPostId;
+            }
+            return 0; // 如果没有查询到结果，默认返回0或其他合适的默认值
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 }
