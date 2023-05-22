@@ -78,12 +78,12 @@ public class Test {
         openDB(prop);
         Fundamental fundamental = new Fundamental(con);
 
-//        accountInserting(fundamental);
-//        postInserting(fundamental);
+        accountInserting(fundamental);
+        postInserting(fundamental);
 //        likedInserting(fundamental);
 //        sharedInserting(fundamental);
 //        favoredInserting(fundamental);
-        followInserting(fundamental);
+//        followInserting(fundamental);
 
         closeDB();
 
@@ -111,7 +111,8 @@ public class Test {
             String content = generateRandomString(100);
             String city = generateRandomCity();
             String name = accountNames.get(random.nextInt(accountNames.size()));
-            fundamental.posting(title, content, city, name);
+            String[] categories = generateRandomForumPostTypes(3);
+            fundamental.post(title, content, city, name,categories);
         }
     }
     public static void likedInserting(Fundamental fundamental) {
@@ -238,6 +239,18 @@ public class Test {
         int index = random.nextInt(cities.length);
         return cities[index];
     }
+
+    private static String[] generateRandomForumPostTypes(int numTypes) {
+        String[] types = new String[numTypes];
+        String[] postTypes = { "问题讨论", "技术分享", "新闻资讯", "经验分享", "资源推荐", "学术研究", "行业动态", "活动公告" };
+        Random random = new Random();
+        for (int i = 0; i < numTypes; i++) {
+            types[i] = postTypes[i];
+        }
+        return types;
+    }
+
+
 }
 
 

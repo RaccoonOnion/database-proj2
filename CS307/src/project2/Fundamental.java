@@ -14,12 +14,12 @@ public class Fundamental {// 批处理
 
     private static ResultSet resultSet = null;
 
-    public Fundamental(Connection con){//构造方法
-        try{
-            if (con != null && stmt1 == null){
+    public Fundamental(Connection con) {//构造方法
+        try {
+            if (con != null && stmt1 == null) {
                 stmt1 = con.createStatement();
             }
-        }catch (SQLException e){
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -28,7 +28,7 @@ public class Fundamental {// 批处理
     这个函数实现了查看用户的点赞Liked、收藏Favored、转发Shared帖⼦的列表
     输出：ArrayList<Integer> postList
      */
-    protected ArrayList<Integer> showLFSList(String account_name, String type){
+    protected ArrayList<Integer> showLFSList(String account_name, String type) {
         ArrayList<Integer> postList = new ArrayList<>();
         String sql = String.format("SELECT post_id FROM %s WHERE account_name = '%s';",
                 type, account_name);
@@ -51,7 +51,7 @@ public class Fundamental {// 批处理
 这个函数实现了查看⽤户⾃⼰关注作者的列表。
 输出：ArrayList<String> followList
  */
-    protected ArrayList<String> showFollowList(String account_name){
+    protected ArrayList<String> showFollowList(String account_name) {
         ArrayList<String> followList = new ArrayList<>();
         String sql = String.format("SELECT followee_name FROM follow WHERE follower_name = '%s';",
                 account_name);
@@ -69,12 +69,13 @@ public class Fundamental {// 批处理
             throw new RuntimeException(e);
         }
     }
+
     /*
     这个函数实现了查看用户⾃⼰发布的帖⼦
     输出：ArrayList<ArrayList<String>> postList
     期中依次序存放着：postIdList， titleList， contentList， datetimeList， cityList， 类型都为ArrayList<String>
      */
-    protected ArrayList<ArrayList<String>> showMyPost(String account_name){
+    protected ArrayList<ArrayList<String>> showMyPost(String account_name) {
         ArrayList<ArrayList<String>> postList = new ArrayList<>();
         ArrayList<String> postIdList = new ArrayList<>();
         ArrayList<String> titleList = new ArrayList<>();
@@ -100,7 +101,7 @@ public class Fundamental {// 批处理
                 String datetime = String.valueOf(resultSet.getTimestamp("datetime"));
                 String city = resultSet.getString("city");
                 // 处理每一行数据
-                postIdList.add(postId+"");
+                postIdList.add(postId + "");
                 titleList.add(title);
                 contentList.add(content);
                 datetimeList.add(datetime);
@@ -116,7 +117,7 @@ public class Fundamental {// 批处理
     这个函数实现了查看⾃⼰已回复的帖⼦的ID
     输出：ArrayList<Integer> replyList
      */
-    protected ArrayList<Integer> showMyReply(String account_name){
+    protected ArrayList<Integer> showMyReply(String account_name) {
         ArrayList<Integer> replyList = new ArrayList<>();
         String sql = String.format("SELECT distinct post_id FROM reply WHERE author_account_name = '%s';",
                 account_name);
@@ -136,7 +137,7 @@ public class Fundamental {// 批处理
     }
 
     protected void registerNewUser(String name, String phone) {
-        name = name.replaceAll("'","''");
+        name = name.replaceAll("'", "''");
         String sql = String.format("insert into account(name,account_id,registration_time,phone) VALUES ('%s','%s','%s','%s');",
                 name, generateRandomID(18), new Timestamp(System.currentTimeMillis()).toString(), phone);
         System.out.println("Executing sql command: " + sql);
@@ -153,9 +154,9 @@ public class Fundamental {// 批处理
      */
 
     protected void likePost(String name, long postID) {
-        name = name.replaceAll("'","''");
+        name = name.replaceAll("'", "''");
         String sql = String.format("insert into liked(account_name,post_id) VALUES ('%s','%s');",
-                name,postID);
+                name, postID);
         System.out.println("Executing sql command: " + sql);
         try {
             stmt1.execute(sql);
@@ -171,9 +172,9 @@ public class Fundamental {// 批处理
      */
 
     protected void favoritePost(String name, long postID) {
-        name = name.replaceAll("'","''");
+        name = name.replaceAll("'", "''");
         String sql = String.format("insert into favored (account_name,post_id) VALUES ('%s','%s');",
-                name,postID);
+                name, postID);
         System.out.println("Executing sql command: " + sql);
         try {
             stmt1.execute(sql);
@@ -188,9 +189,9 @@ public class Fundamental {// 批处理
      */
 
     protected void sharePost(String name, long postID) {
-        name = name.replaceAll("'","''");
+        name = name.replaceAll("'", "''");
         String sql = String.format("insert into shared(account_name,post_id) VALUES ('%s','%s');",
-                name,postID);
+                name, postID);
         System.out.println("Executing sql command: " + sql);
         try {
             stmt1.execute(sql);
@@ -199,32 +200,26 @@ public class Fundamental {// 批处理
         }
     }
 
+
+    /*
+    post 发布帖子： 由两个函数组成，posting函数更新post表中的内容 同时category更新了post_category和category两张表的内容
+     */
+    protected void post( String title, String content, String city, String name,String[] categories){
+        int postid = getMaxPostId();
+        posting(postid,title,content,city,name);
+        category(postid,categories);
+    }
     /*
     Posting 发帖：通过入参title，content，city，name 在post表中加入相应内容
         发表了类似的帖子
      */
 
-    protected void posting(String title, String content, String city, String name) {
-        title = title.replaceAll("'","''");
-        content = content.replaceAll("'","''");
-        city = city.replaceAll("'","''");
-        name = name.replaceAll("'","''");
-        String sql = String.format("insert into post(title,content,datetime,city,post_account_name) VALUES ('%s','%s','%s','%s','%s');",
-                title, content, new Timestamp(System.currentTimeMillis()).toString(), city, name);
-        System.out.println("Executing sql command: " + sql);
-        try {
-            stmt1.execute(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected void category(String title, String content, String city, String name) {
-        title = title.replaceAll("'","''");
-        content = content.replaceAll("'","''");
-        city = city.replaceAll("'","''");
-        name = name.replaceAll("'","''");
-        String sql = String.format("insert into post(title,content,datetime,city,post_account_name) VALUES ('%s','%s','%s','%s','%s');",
+    protected void posting(int postId, String title, String content, String city, String name) {
+        title = title.replaceAll("'", "''");
+        content = content.replaceAll("'", "''");
+        city = city.replaceAll("'", "''");
+        name = name.replaceAll("'", "''");
+        String sql = String.format("insert into post(post_id ,title,content,datetime,city,post_account_name) VALUES ('%s','%s','%s','%s','%s','%s');", postId,
                 title, content, new Timestamp(System.currentTimeMillis()).toString(), city, name);
         System.out.println("Executing sql command: " + sql);
         try {
@@ -235,14 +230,31 @@ public class Fundamental {// 批处理
     }
 
     /*
+    category 归类帖子的种类： 与数据库层面的trigger一同更新对应postId的种类
+     */
+    protected void category(int postId, String[] categories) {
+        for (int i = 0; i < categories.length; i++) {
+            categories[i] = categories[i].replaceAll("'", "''");
+
+            String sql = String.format("insert into post_category(category_name,post_id) VALUES ('%s','%s');",
+                   categories[i], postId);
+            System.out.println("Executing sql command: " + sql);
+            try {
+                stmt1.execute(sql);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    /*
     Reply 回复帖子：
      */
 
     protected void reply(int replyId, int postId, String content, String name) {
-        content = content.replaceAll("'","''");
-        name = name.replaceAll("'","''");
+        content = content.replaceAll("'", "''");
+        name = name.replaceAll("'", "''");
         String sql = String.format("insert into reply(reply_id,content,stars,post_id,post_account_name) VALUES ('%s','%s','%s','%s','%s');",
-                replyId,postId,content,0,name);
+                replyId, postId, content, 0, name);
         System.out.println("Executing sql command: " + sql);
         try {
             stmt1.execute(sql);
@@ -252,10 +264,10 @@ public class Fundamental {// 批处理
     }
 
     protected void followUser(String followerName, String followeeName) {
-        followerName = followerName.replaceAll("'","''");
-        followeeName = followeeName.replaceAll("'","''");
+        followerName = followerName.replaceAll("'", "''");
+        followeeName = followeeName.replaceAll("'", "''");
         String sql = String.format("insert into follow(follower_name,followee_name) VALUES ('%s','%s');",
-                followerName,followeeName);
+                followerName, followeeName);
         System.out.println("Executing sql command: " + sql);
         try {
             stmt1.execute(sql);
@@ -265,10 +277,10 @@ public class Fundamental {// 批处理
     }
 
     protected void unfollowUser(String followerName, String followeeName) {
-        followerName.replaceAll("'","''");
-        followeeName.replaceAll("'","''");
+        followerName.replaceAll("'", "''");
+        followeeName.replaceAll("'", "''");
         String sql = String.format("DELETE FROM follow WHERE follower_name = '%s' and followee_name = '%s';",
-                followerName,followeeName);
+                followerName, followeeName);
         System.out.println("Executing sql command: " + sql);
         try {
             stmt1.execute(sql);
@@ -319,20 +331,20 @@ public class Fundamental {// 批处理
     }
 
     public ArrayList<String> getAllAccountNames() {
-            ArrayList<String> accountNames = new ArrayList<>();
-            String sql = "SELECT name FROM account;";
-            System.out.println("Executing sql command: " + sql);
-            try {
-                resultSet = stmt1.executeQuery(sql);
-                while (resultSet.next()) {
-                    String name = resultSet.getString("name");
-                    accountNames.add(name);
-                }
-                return accountNames;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        ArrayList<String> accountNames = new ArrayList<>();
+        String sql = "SELECT name FROM account;";
+        System.out.println("Executing sql command: " + sql);
+        try {
+            resultSet = stmt1.executeQuery(sql);
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                accountNames.add(name);
             }
+            return accountNames;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+    }
 
     public ArrayList<Integer> getAllPostIds() {
         ArrayList<Integer> postIds = new ArrayList<>();
@@ -357,7 +369,7 @@ public class Fundamental {// 批处理
             resultSet = stmt1.executeQuery(sql);
             if (resultSet.next()) {
                 int maxPostId = resultSet.getInt("max_post_id");
-                return maxPostId;
+                return maxPostId + 1;
             }
             return 0; // 如果没有查询到结果，默认返回0或其他合适的默认值
         } catch (SQLException e) {
