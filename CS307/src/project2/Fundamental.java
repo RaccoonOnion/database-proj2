@@ -253,7 +253,7 @@ public class Fundamental {// 批处理
     protected void reply(int replyId, int postId, String content, String name) {
         content = content.replaceAll("'", "''");
         name = name.replaceAll("'", "''");
-        String sql = String.format("insert into reply(reply_id,content,stars,post_id,post_account_name) VALUES ('%s','%s','%s','%s','%s');",
+        String sql = String.format("insert into reply(reply_id,post_id,content,stars,author_account_name) VALUES ('%s','%s','%s','%s','%s');",
                 replyId, postId, content, 0, name);
         System.out.println("Executing sql command: " + sql);
         try {

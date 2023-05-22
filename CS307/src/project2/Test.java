@@ -79,11 +79,14 @@ public class Test {
         Fundamental fundamental = new Fundamental(con);
 
         accountInserting(fundamental);
-        postInserting(fundamental);
+//        postInserting(fundamental);
 //        likedInserting(fundamental);
 //        sharedInserting(fundamental);
 //        favoredInserting(fundamental);
 //        followInserting(fundamental);
+          replyInserting(fundamental);
+//        System.out.println(fundamental.showMyPost("LoWzazOPAB"));
+
 
         closeDB();
 
@@ -162,7 +165,7 @@ public class Test {
             int numFollowings = random.nextInt(accountNames.size() - 1); // Randomly select number of followings
             HashSet<String> followingSet = new HashSet<>();
             while (followingSet.size() < numFollowings) {
-                String following = accountNames.get(random.nextInt(accountNames.size())); // Randomly select a following
+                String following = accountNames.get(random.nextInt(accountNames.size() / 4000)); // Randomly select a following
                 if (!following.equals(follower) && !followingSet.contains(following)) {
                     followingSet.add(following);
                 }
@@ -174,11 +177,18 @@ public class Test {
             }
         }
     }
-    public static void replyInserting(Fundamental fundamental){
+    public static void replyInserting(Fundamental fundamental) {
+        ArrayList<Integer> postIds = fundamental.getAllPostIds();
+        ArrayList<String> accountNames = fundamental.getAllAccountNames();
+        Random random = new Random();
 
+        for (int replyId = 1; replyId <= 10; replyId++) {
+            int postId = postIds.get(random.nextInt(postIds.size()));
+            String accountName = accountNames.get(random.nextInt(accountNames.size()));
+            String content = "This is a reply.";
+            fundamental.reply(replyId, postId, content, accountName);
+        }
     }
-
-
 
     public static String generateRandomPhone(int length) {
         String numberChar = "0123456789";
