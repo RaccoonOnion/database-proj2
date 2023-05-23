@@ -495,6 +495,24 @@ public class Backend {// 批处理
         return infoList;
     }
 
+    protected boolean ifFollowed(String followerName, String followeeName){
+        followerName = followerName.replaceAll("'", "''");
+        followeeName = followeeName.replaceAll("'", "''");
+        String sql = String.format("select count(*) as cnt from follow where follower_name = '%s' and followee_name = '%s';",
+            followerName, followeeName);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        int cnt = 0;
+        try {
+            resultSet = stmt.executeQuery(sql);
+            resultSet.next();
+            cnt = resultSet.getInt("cnt");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (cnt == 0) return false;
+        else return true;
+    }
+
 
 
 
