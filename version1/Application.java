@@ -69,7 +69,6 @@ public class Application {
         long start = System.currentTimeMillis();
         Properties prop = loadDBUser();
         openDB(prop);
-        Fundamental fundamental = new Fundamental(con);
         Utils utils = new Utils();
         Scanner scanner = new Scanner(System.in);  // 创建Scanner对象
         be = new Backend(con, false); // TODO: connection pool and connection check
@@ -136,7 +135,7 @@ public class Application {
                 case 3:
                 {
                     System.out.println("Welcome to the playground! What do you want to do? "
-                        + "['show-post','show-my-post', 'show-post-detail','show-my-reply', 'show-replied-post', 'show-my-follow-list', 'show-my-like-list','show-my-favor-list','show-my-share-list','follow', 'unfollow','post','logoff']");
+                        + "['show-post','show-my-post', 'show-post-detail','show-my-reply', 'show-replied-post', 'show-my-follow-list', \n'show-my-like-list','show-my-favor-list','show-my-share-list','follow', 'unfollow','post','logoff']");
                     String action = utils.getWord(scanner);
                     switch (action)
                     {
@@ -246,16 +245,26 @@ public class Application {
                         {
                             System.out.println("Please input the account id you want to follow:");
                             String name = utils.getWord(scanner);
-                            be.followAccount(usr.getName(),name);
-                            System.out.println("You follow a new person, thank you!");
+                            if (be.ifFollowed(usr.getName(), name)){
+                                System.out.println("You have followed this minion. Why you like him/her/it so much wuuuu.");
+                            }
+                            else{
+                                be.followAccount(usr.getName(),name);
+                                System.out.println("You follow a new person, thank you!");
+                            }
                             break;
                         }
                         case "unfollow":
                         {
                             System.out.println("Please input the account name you want to unfollow:");
                             String name = utils.getWord(scanner);
-                            be.unfollowAccount(usr.getName(),name);
-                            System.out.println("You unfollow an old friend. What's wrong!");
+                            if (!be.ifFollowed(usr.getName(), name)){
+                                System.out.println("You have not followed this minion. Why you hate him/her/it so much wuuuu.");
+                            }
+                            else{
+                                be.unfollowAccount(usr.getName(),name);
+                                System.out.println("You unfollow an old friend. What's wrong!");
+                            }
                             break;
                         }
                         case "post":
@@ -332,8 +341,13 @@ public class Application {
                         }
                         case "follow":
                         {
-                            be.followAccount(usr.getName(), post.getPost_account_name());
-                            System.out.println("You follow the post author, thank you!");
+                            if (be.ifFollowed(usr.getName(), post.getPost_account_name())){
+                                System.out.println("You already followed this minion. Don't love him/her/it too much.");
+                            }
+                            else{
+                                be.followAccount(usr.getName(), post.getPost_account_name());
+                                System.out.println("You follow the post author, thank you!");
+                            }
                             break;
                         }
                         case "show-reply":
@@ -394,8 +408,12 @@ public class Application {
                         }
                         case "follow":
                         {
-                            be.followAccount(usr.getName(), reply.getAuthor_account_name());
-                            System.out.println("You follow a reply author.");
+                            if (be.ifFollowed(usr.getName(), reply.getAuthor_account_name())){
+                                System.out.println("You already followed this minion. Don't love him/her/it too much.");
+                            }else{
+                                be.followAccount(usr.getName(), reply.getAuthor_account_name());
+                                System.out.println("You follow a reply author.");
+                            }
                             break;
                         }
                         case "show-secondary-reply":
