@@ -57,7 +57,7 @@ create table reply
     stars               bigint  not null,
     post_id             bigint  not null,
     author_account_name varchar not null,
-    unique (reply_id, post_id),
+    unique (reply_id, post_id, content), -- reduce replication
     constraint post_id_fk foreign key (post_id)
         references post (post_id),
     constraint author_account_name_fk foreign key (author_account_name)
@@ -147,6 +147,29 @@ CREATE TRIGGER before_insert_account
 BEFORE INSERT ON account
 FOR EACH ROW
 EXECUTE FUNCTION set_default_password();
+
+
+-- CREATE OR REPLACE FUNCTION prevent_duplicate_reply()
+--     RETURNS TRIGGER AS $$
+-- BEGIN
+--     -- 检查是否存在相同的 reply_id 和 post_id
+--     IF EXISTS (
+--         SELECT 1 FROM reply
+--         WHERE reply_id = NEW.reply_id AND post_id = NEW.post_id
+--     ) THEN
+--         -- 如果存在重复记录，则取消插入操作
+--         RETURN NULL;
+--     ELSE
+--         -- 否则，允许插入操作继续
+--         RETURN NEW;
+--     END IF;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- CREATE TRIGGER check_duplicate_reply
+--     BEFORE INSERT ON reply
+--     FOR EACH ROW
+--     EXECUTE FUNCTION prevent_duplicate_reply();
 
 -- select * from reply where id = 2
 
