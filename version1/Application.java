@@ -33,7 +33,7 @@ public class Application {
             con = DriverManager.getConnection(url, prop);
             if (con != null) {
                 System.out.println("Successfully connected to the database "
-                        + prop.getProperty("database") + " as " + prop.getProperty("user"));
+                    + prop.getProperty("database") + " as " + prop.getProperty("user"));
                 con.setAutoCommit(true);
             }
         } catch (SQLException e) {
@@ -145,10 +145,30 @@ public class Application {
                 case 3:
                 {
                     System.out.println("Welcome to the playground! What do you want to do? "
-                            + "['show-post','show-my-post', 'show-post-detail','show-my-reply', 'show-replied-post', 'show-my-follow-list', \n'show-my-like-list','show-my-favor-list','show-my-share-list','follow', 'unfollow','post','logoff']");
+                        + "['change-phone-pw', 'show-my-phone', 'show-post','show-my-post', 'show-post-detail','show-my-reply', 'show-replied-post', 'show-my-follow-list', \n"
+                        + "'show-my-like-list','show-my-favor-list','show-my-share-list','follow', 'unfollow','post','logoff']");
                     String action = utils.getWord(scanner);
                     switch (action)
                     {
+                        case "show-my-phone":
+                        {
+                            System.out.printf("Your phone number is: %s. Note that the default phone number is 12345678900. You can change it with change-phone-pw.\n",be.showMyPhone(usr.getName()).get(0));
+                            break;
+                        }
+                        case "change-phone-pw":
+                        {
+                            System.out.println("Please input the phone number and the password you want to change, separated by a space, end with new line.");
+                            String phone = scanner.next();
+                            String pw = utils.getWord(scanner);
+                            boolean succeed = be.changeAccountDetail(usr.getName(), phone, pw);
+                            if (succeed){
+                                System.out.println("Your phone number and password have been successfully set up!!");
+                            }
+                            else{
+                                System.out.println("Sorry, there is some problem with the backend.");
+                            }
+                            break;
+                        }
                         case "logoff":
                         {
                             System.out.println("Bye from playground!");
@@ -253,7 +273,7 @@ public class Application {
                         }
                         case "follow":
                         {
-                            System.out.println("Please input the account id you want to follow:");
+                            System.out.println("Please input the account name you want to follow:");
                             String name = utils.getWord(scanner);
                             if (be.ifFollowed(usr.getName(), name)){
                                 System.out.println("You have followed this minion. Why you like him/her/it so much wuuuu.");
@@ -327,7 +347,7 @@ public class Application {
                     System.out.printf("Your are in post %s, ID: %d, author: %s\n", post.getTitle(), post.getPostID(), post.getPost_account_name());
                     System.out.printf("Post content is: %s\n", post.getContent());
                     System.out.println("Please select one of the actions: "
-                            + "['like','favor','share','follow','show-reply','see-reply-detail','reply','back']");
+                        + "['like','favor','share','follow','show-reply','see-reply-detail','reply','back']");
                     String action = utils.getWord(scanner);
                     switch (action)
                     {
@@ -363,12 +383,14 @@ public class Application {
                         case "show-reply":
                         {
                             boolean[] print = {true, false,true,true,true,true};
-                            if (be.showReplyIDs(post.getPostID()).size() == 0)
+                            ArrayList<Integer> firstLevelReplyList = be.showReply(post.getPostID(), true);
+                            if (firstLevelReplyList.size() == 0)
                             {
                                 System.out.println("There are no replies attached to this post.");
                             }
                             else {
-                                utils.printArray2(be.checkReplies(be.showReplyIDs(post.getPostID())), "Reply list", print, replyColumns);
+                                utils.printArray2(be.checkReplies(firstLevelReplyList), "Reply list", print, replyColumns);
+                                System.out.printf("There are %d first-level reply to this post\n", firstLevelReplyList.size());
                                 System.out.println("Your can see reply detail by 'see-reply-detail'.");
                             }
                             break;
@@ -407,7 +429,7 @@ public class Application {
                     System.out.printf("Your are in reply %d, secondary: %b, author: %s\n", reply.getId(), secondary, reply.getAuthor_account_name());
                     System.out.printf("Reply content is: %s\n", reply.getContent());
                     System.out.println("Please select one of the actions: "
-                            + "['follow','show-secondary-reply','see-secondary-reply-detail','reply-to-reply','back','star-the-current-reply']");
+                        + "['follow','show-secondary-reply','see-secondary-reply-detail','reply-to-reply','back','star-the-current-reply']");
                     String action = utils.getWord(scanner);
                     switch (action)
                     {
@@ -428,11 +450,11 @@ public class Application {
                         }
                         case "show-secondary-reply":
                         {
-                            if (secondary){
+                            ArrayList<Integer> secondaryReplyList = be.showReply(reply.getId(), false);
+                            if (secondaryReplyList.size() != 0){
                                 boolean[] print = {true, false,true,true,true,true};
-                                ArrayList<Integer> replyIDList = new ArrayList<>();
-                                replyIDList.add(reply.getId()); // secondary reply id is positive
-                                utils.printArray2(be.checkReplies(replyIDList), "Secondary reply list", print, replyColumns);
+                                utils.printArray2(be.checkReplies(secondaryReplyList), "Secondary reply list", print, replyColumns);
+                                System.out.printf("There are %d secondary replies.\n", secondaryReplyList.size());
                                 System.out.println("Your can see reply detail by 'see-secondary-reply-detail'.");
                                 break;
                             }
@@ -485,4 +507,3 @@ public class Application {
     }
 
 }
-
