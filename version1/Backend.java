@@ -1,4 +1,4 @@
-// package project2;
+// package version1;// package project2;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,7 +32,7 @@ public class Backend {// 批处理
     protected ArrayList<Integer> showLFSIDList(String account_name, String type) {
         ArrayList<Integer> postIDList = new ArrayList<>();
         String sql = String.format("SELECT post_id FROM %s WHERE account_name = '%s';",
-            type, account_name);
+                type, account_name);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
@@ -55,7 +55,7 @@ public class Backend {// 批处理
     protected ArrayList<String> showFollowNameList(String account_name) {
         ArrayList<String> followList = new ArrayList<>();
         String sql = String.format("SELECT followee_name FROM follow WHERE follower_name = '%s';",
-            account_name);
+                account_name);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
@@ -79,7 +79,7 @@ public class Backend {// 批处理
     protected ArrayList<Integer> showMyPostIDs(String account_name) {
         ArrayList<Integer> postIDList = new ArrayList<>();
         String sql = String.format("SELECT post_id FROM post WHERE post_account_name = '%s';",
-            account_name);
+                account_name);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
@@ -97,7 +97,7 @@ public class Backend {// 批处理
     protected ArrayList<Integer> showReplyIDs(int postID) {
         ArrayList<Integer> replyIDList = new ArrayList<>();
         String sql = String.format("SELECT id FROM reply WHERE post_id = %d;",
-            postID);
+                postID);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
@@ -135,7 +135,7 @@ public class Backend {// 批处理
 
         for (int postID: postIDList){
             String sql = String.format("SELECT * FROM post WHERE post_id = %d;",
-                postID);
+                    postID);
             if (debug) System.out.println("Executing sql command: " + sql);
             try {
                 resultSet = stmt.executeQuery(sql);
@@ -184,7 +184,7 @@ public class Backend {// 批处理
 
         for (int id: replyIDList){
             String sql = String.format("SELECT * FROM reply WHERE id = %d;",
-                id);
+                    id);
             if (debug) System.out.println("Executing sql command: " + sql);
             try {
                 resultSet = stmt.executeQuery(sql);
@@ -217,7 +217,7 @@ public class Backend {// 批处理
     protected ArrayList<Integer> showMyRepliedPostIDs(String account_name) {
         ArrayList<Integer> repliedPostIDList = new ArrayList<>();
         String sql = String.format("SELECT distinct post_id FROM reply WHERE author_account_name = '%s';",
-            account_name);
+                account_name);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
@@ -240,7 +240,7 @@ public class Backend {// 批处理
     protected ArrayList<Integer> showMyReplyIDs(String account_name) {
         ArrayList<Integer> replyIDList = new ArrayList<>();
         String sql = String.format("SELECT id FROM reply WHERE author_account_name = '%s';",
-            account_name);
+                account_name);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
@@ -259,7 +259,7 @@ public class Backend {// 批处理
     protected boolean addAccount(String name, String account_id, String phone, String password) {
         name = name.replaceAll("'", "''");
         String sql = String.format("INSERT INTO account(name,account_id,registration_time,phone,password) VALUES ('%s','%s','%s','%s','%s');",
-            name, account_id, new Timestamp(System.currentTimeMillis()).toString(), phone, password);
+                name, account_id, new Timestamp(System.currentTimeMillis()).toString(), phone, password);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             stmt.execute(sql);
@@ -277,7 +277,7 @@ public class Backend {// 批处理
     protected void lfsPost(String name, int postID, String type) {
         name = name.replaceAll("'", "''");
         String sql = String.format("insert into %s(account_name,post_id) VALUES ('%s',%d);",
-            type, name, postID);
+                type, name, postID);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             stmt.execute(sql);
@@ -308,7 +308,7 @@ public class Backend {// 批处理
         city = city.replaceAll("'", "''");
         name = name.replaceAll("'", "''");
         String sql = String.format("insert into post(post_id ,title,content,datetime,city,post_account_name) VALUES (%d,'%s','%s','%s','%s','%s');", postId,
-            title, content, new Timestamp(System.currentTimeMillis()).toString(), city, name);
+                title, content, new Timestamp(System.currentTimeMillis()).toString(), city, name);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             stmt.execute(sql);
@@ -328,7 +328,7 @@ public class Backend {// 批处理
             cat = cat.replaceAll("'", "''");
 
             String sql = String.format("insert into post_category(category_name,post_id) VALUES ('%s',%d);",
-                cat, postId);
+                    cat, postId);
             if (debug) System.out.println("Executing sql command: " + sql);
             try {
                 stmt.execute(sql);
@@ -347,7 +347,7 @@ public class Backend {// 批处理
         content = content.replaceAll("'", "''");
         name = name.replaceAll("'", "''");
         String sql = String.format("insert into reply(reply_id,content,stars,post_id,author_account_name) VALUES (%d,'%s',%d,%d,'%s');",
-            replyId, content, 0, postID, name);
+                replyId, content, 0, postID, name);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             stmt.execute(sql);
@@ -360,7 +360,7 @@ public class Backend {// 批处理
         followerName = followerName.replaceAll("'", "''");
         followeeName = followeeName.replaceAll("'", "''");
         String sql = String.format("insert into follow(follower_name,followee_name) VALUES ('%s','%s');",
-            followerName, followeeName);
+                followerName, followeeName);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             stmt.execute(sql);
@@ -375,7 +375,7 @@ public class Backend {// 批处理
         followerName.replaceAll("'", "''");
         followeeName.replaceAll("'", "''");
         String sql = String.format("DELETE FROM follow WHERE follower_name = '%s' and followee_name = '%s';",
-            followerName, followeeName);
+                followerName, followeeName);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             stmt.execute(sql);
@@ -451,7 +451,7 @@ public class Backend {// 批处理
         name = name.replaceAll("'", "''");
         String pw = "";
         String sql = String.format("SELECT password FROM account WHERE name = '%s';",
-            name);
+                name);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
@@ -476,7 +476,7 @@ public class Backend {// 批处理
         ArrayList<String> infoList = new ArrayList<>();
         name = name.replaceAll("'", "''");
         String sql = String.format("SELECT * FROM account WHERE name = '%s';",
-            name);
+                name);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
@@ -499,7 +499,7 @@ public class Backend {// 批处理
         followerName = followerName.replaceAll("'", "''");
         followeeName = followeeName.replaceAll("'", "''");
         String sql = String.format("select count(*) as cnt from follow where follower_name = '%s' and followee_name = '%s';",
-            followerName, followeeName);
+                followerName, followeeName);
         if (debug) System.out.println("Executing sql command: " + sql);
         int cnt = 0;
         try {
@@ -511,6 +511,16 @@ public class Backend {// 批处理
         }
         if (cnt == 0) return false;
         else return true;
+    }
+
+    protected void starReply(int id){
+        String sql = String.format("update reply set stars = stars + 1 where id = %d;",id);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 
