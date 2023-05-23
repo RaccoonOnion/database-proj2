@@ -1,4 +1,4 @@
-//package project2;
+// package version1;//package project2;
 
 import java.io.*;
 import java.util.*;
@@ -33,7 +33,7 @@ public class Application {
             con = DriverManager.getConnection(url, prop);
             if (con != null) {
                 System.out.println("Successfully connected to the database "
-                    + prop.getProperty("database") + " as " + prop.getProperty("user"));
+                        + prop.getProperty("database") + " as " + prop.getProperty("user"));
                 con.setAutoCommit(true);
             }
         } catch (SQLException e) {
@@ -145,7 +145,7 @@ public class Application {
                 case 3:
                 {
                     System.out.println("Welcome to the playground! What do you want to do? "
-                        + "['show-post','show-my-post', 'show-post-detail','show-my-reply', 'show-replied-post', 'show-my-follow-list', \n'show-my-like-list','show-my-favor-list','show-my-share-list','follow', 'unfollow','post','logoff']");
+                            + "['show-post','show-my-post', 'show-post-detail','show-my-reply', 'show-replied-post', 'show-my-follow-list', \n'show-my-like-list','show-my-favor-list','show-my-share-list','follow', 'unfollow','post','logoff']");
                     String action = utils.getWord(scanner);
                     switch (action)
                     {
@@ -327,7 +327,7 @@ public class Application {
                     System.out.printf("Your are in post %s, ID: %d, author: %s\n", post.getTitle(), post.getPostID(), post.getPost_account_name());
                     System.out.printf("Post content is: %s\n", post.getContent());
                     System.out.println("Please select one of the actions: "
-                        + "['like','favor','share','follow','show-reply','see-reply-detail','reply','back']");
+                            + "['like','favor','share','follow','show-reply','see-reply-detail','reply','back']");
                     String action = utils.getWord(scanner);
                     switch (action)
                     {
@@ -407,7 +407,7 @@ public class Application {
                     System.out.printf("Your are in reply %d, secondary: %b, author: %s\n", reply.getId(), secondary, reply.getAuthor_account_name());
                     System.out.printf("Reply content is: %s\n", reply.getContent());
                     System.out.println("Please select one of the actions: "
-                        + "['follow','show-secondary-reply','see-secondary-reply-detail','reply-to-reply','back']");
+                            + "['follow','show-secondary-reply','see-secondary-reply-detail','reply-to-reply','back','star-the-current-reply']");
                     String action = utils.getWord(scanner);
                     switch (action)
                     {
@@ -459,6 +459,11 @@ public class Application {
                             System.out.println("You just replied to a reply. Thank you!");
                             break;
                         }
+                        case "star-the-current-reply":
+                        {
+                            be.starReply(reply.getId());
+                            System.out.println("You just stared a reply. Thank you!");
+                        }
 
                     }
                     break;
@@ -480,5 +485,4 @@ public class Application {
     }
 
 }
-
 
