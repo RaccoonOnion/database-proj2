@@ -128,6 +128,16 @@ public class Application {
                     }
                     else{
                         System.out.println("Oops! The username you input does not exist or the username and password do not match.");
+                        System.out.println("Do you want to retrieve to last layer or try login again? ['back','try-again']");
+                        String action = utils.getWord(scanner);
+                        if (action.equals("back")){
+                            stage = 0;
+                        } else if (action.equals("try-again")) {
+                            System.out.println("Nvm! Try again!");
+                        }
+                        else{
+                            System.out.println("We don't recognize your input. I will let you try again.");
+                        }
                     }
                     break;
                 }
