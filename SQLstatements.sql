@@ -132,3 +132,21 @@ CREATE TRIGGER insert_category_trigger
 BEFORE INSERT ON post_category
 FOR EACH ROW
 EXECUTE FUNCTION insert_category_if_not_exists();
+
+CREATE OR REPLACE FUNCTION set_default_password()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.password IS NULL THEN
+        NEW.password := '123456';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER before_insert_account
+BEFORE INSERT ON account
+FOR EACH ROW
+EXECUTE FUNCTION set_default_password();
+
+-- select * from reply where id = 2
+
