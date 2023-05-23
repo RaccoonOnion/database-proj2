@@ -522,6 +522,17 @@ public class Backend {// 批处理
             e.printStackTrace();
         }
     }
+    
+    protected void changeAccountDetail(String name,String phone,String password){
+        password = password.replaceAll("'","''");
+        String sql = String.format("update account set phone = '%s' , password = '%s' where name = '%s';",phone,password,name);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 
