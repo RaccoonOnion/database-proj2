@@ -6,11 +6,6 @@ import java.sql.*;
 
 public class Test {
 
-    private static boolean login;
-    private static String name;
-    private static String phone;
-    private static boolean logined = false;
-
     protected static Connection con = null;
     private static Statement stmt1 = null;
 
@@ -67,7 +62,7 @@ public class Test {
         }
     }
 
-    public static void main(String[] args) {
+    public void insert() {
 
         long start = System.currentTimeMillis();
         Properties prop = loadDBUser();
