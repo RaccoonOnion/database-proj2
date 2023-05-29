@@ -1,4 +1,4 @@
-// package version2;// package project2;
+package version2;// package project2;
 
 import java.util.*;
 import java.sql.*;
@@ -263,7 +263,7 @@ public class Backend {// 批处理
                 throw new RuntimeException(e);
             }
         }
-        return Utils.transfor(postList);
+        return postList;
     }
 
     /*
