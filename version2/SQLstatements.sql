@@ -141,8 +141,6 @@ create table Shielding
         references account (name)
 );
 
-
-
 --Schema searchCount
 create table searchCount
 (
@@ -246,6 +244,9 @@ BEFORE INSERT ON Shielding
 FOR EACH ROW
 EXECUTE FUNCTION prevent_duplicate_shielding();
 
+-- select shielded_name from shielding where shielder_name = 'gold_net';
+-- select * from follow where follower_name = 'gold_net';
+-- delete from liked where post_id = 1 and account_name = 'gold_net';
 
 -- select post_id from searchcount where numOfSearched != 0 order by numOfSearched desc limit 10;
 -- insert into shielding (shielded_name, shielder_name) VALUES ('gold_net','gold_net');
