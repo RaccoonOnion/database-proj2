@@ -1,4 +1,4 @@
-package version2;//package project2;
+// package version2;//package project2;
 
 import java.io.*;
 import java.util.*;
@@ -355,7 +355,7 @@ public class Application {
                         case "show-my-like-list", "11": {
                             boolean[] print = {true, true, false, true, true, true};
                             ArrayList<ArrayList<String>> temp = be.checkPosts(be.showLFSIDList(usr.getName(), "liked"), usr.getName());
-                            if (temp.get(0).size() == 0){
+                            if (temp.get(0).size() == 0) {
                                 System.out.println("You haven't like any post yet");
                                 break;
                             }
@@ -366,7 +366,7 @@ public class Application {
                         case "show-my-favor-list", "12": {
                             boolean[] print = {true, true, false, true, true, true};
                             ArrayList<ArrayList<String>> temp = be.checkPosts(be.showLFSIDList(usr.getName(), "favored"), usr.getName());
-                            if (temp.get(0).size() == 0){
+                            if (temp.get(0).size() == 0) {
                                 System.out.println("You haven't favored any post yet");
                                 break;
                             }
@@ -377,7 +377,7 @@ public class Application {
                         case "show-my-share-list", "13": {
                             boolean[] print = {true, true, false, true, true, true};
                             ArrayList<ArrayList<String>> temp = be.checkPosts(be.showLFSIDList(usr.getName(), "shared"), usr.getName());
-                            if (temp.get(0).size() == 0){
+                            if (temp.get(0).size() == 0) {
                                 System.out.println("You haven't shared any post yet");
                                 break;
                             }
@@ -484,15 +484,20 @@ public class Application {
 
                     String horizontalLine = "*" + "*".repeat(maxLength * 3 + 4) + "*";
                     int lineLength = maxLength * 3 + 4;
-                    int centerOffset = (lineLength - 10) / 2;
+                    String heading = "PostId : " + String.valueOf(post.getPostID());
+                    int centerOffset = (lineLength - heading.length()) / 2;
 
-                    String Header = "*" + "*".repeat(centerOffset - 1) + " Playground " + "*".repeat(centerOffset) + "*";
+                    String Header = "*" + "*".repeat(centerOffset - 1) + " " + heading + " " + "*".repeat(centerOffset-1) + "*";
 
                     System.out.println(Header);
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Title: " + post.getTitle()) + "   *");
                     System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
-                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Welcome to the playground!") + "   *");
-                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "What do you want to do?") + "   *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Content:") + "   *");
+                    printWrappedContent(post.getContent(), maxLength * 3);
                     System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Author: " + post.getPost_account_name()) + "   *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "City: " + post.getCity()) + "   *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Time: " + post.getDatetime()) + "   *");
                     System.out.println(horizontalLine);
                     System.out.println();
 
@@ -515,38 +520,6 @@ public class Application {
 
                     String action = utils.getWord(scanner);
 
-
-//                    System.out.printf("You are in post %s, ID: %d, author: %s\n", post.getTitle(), post.getPostID(), post.getPost_account_name());
-//                    System.out.printf("Post content is: %s\n", post.getContent());
-//                    System.out.println("Please select one of the actions: ");
-//
-//                    String[] actions = {
-//                    int maxLength = 0;
-//                    for (String act : actions) {
-//                        maxLength = Math.max(maxLength, act.length());
-//                    }
-//
-//                    String horizontalLine = "*" + "*".repeat(maxLength * 3 + 6) + "*";
-//                    System.out.println(horizontalLine);
-//
-//                    int count = 0;
-//                    for (int i = 0; i < actions.length; i++) {
-//                        if (count % 3 == 0) {
-//                            System.out.print("* ");
-//                        }
-//                        String actionNumber = String.format("%d. ", i + 1);
-//                        System.out.print(String.format("%-2s%-"+ (maxLength + 1) + "s", actionNumber, actions[i]));
-//                        count++;
-//                        if (count % 3 == 0) {
-//                            System.out.println(" *");
-//                        }
-//                    }
-//                    if (count % 3 != 0) {
-//                        System.out.println(" ".repeat((3 - (count % 3)) * (maxLength + 1)) + "*");
-//                    }
-//                    System.out.println(horizontalLine);
-//
-//                    String action = utils.getWord(scanner);
 
                     switch (action) {
                         case "like", "1": {
@@ -620,20 +593,70 @@ public class Application {
                     }
                     break;
                 }
-                case 5: //reply TODO:
+                case 5: // reply TODO:
                 {
-                    boolean secondary = (reply.getId() <= 0) ? false : true;
-                    System.out.printf("Your are in reply %d, secondary: %b, author: %s\n", reply.getId(), secondary, reply.getAuthor_account_name());
-                    System.out.printf("Reply content is: %s\n", reply.getContent());
-                    System.out.println("Please select one of the actions: "
-                            + "['follow','show-secondary-reply','see-secondary-reply-detail','reply-to-reply','back','star-the-current-reply']");
+                    String menu =
+                            "  1: 'follow'\n" +
+                                    "  2: 'show-secondary-reply'\n" +
+                                    "  3: 'see-secondary-reply-detail'\n" +
+                                    "  4: 'reply-to-reply'\n" +
+                                    "  5: 'back'\n" +
+                                    "  6: 'star-the-current-reply'\n";
+
+                    String[] lines = menu.split("\n");
+                    int maxLength = 0;
+                    for (String line : lines) {
+                        maxLength = Math.max(maxLength, line.length());
+                    }
+                    boolean secondary = (reply.getReplyID() <= 0) ? false : true;
+                    String level = secondary ? "Secondary " : "Primary ";
+
+                    String horizontalLine = "*" + "*".repeat(maxLength * 3 + 4) + "*";
+                    int lineLength = maxLength * 3 + 4;
+                    String heading = level + "Reply Id : " + String.valueOf(reply.getId());
+                    int centerOffset = (lineLength - heading.length()) / 2;
+
+                    String Header = "*" + "*".repeat(centerOffset - 1) + " " + heading + " " + "*".repeat(centerOffset-1) + "*";
+
+                    System.out.println(Header);
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Author: " + reply.getAuthor_account_name()) + "   *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Stars: " + reply.getStars()) + "   *");
+                    System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Content: ") + "   *");
+                    printWrappedContent(reply.getContent(), maxLength * 3);
+                    System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Post Id: " + reply.getPostID()) + "   *");
+                    if (secondary) {
+                        System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Parent Reply Id: " + reply.getReplyID()) + "   *");
+                    }
+                    System.out.println(horizontalLine);
+                    System.out.println();
+
+
+                    System.out.println(horizontalLine);
+                    int count = 0;
+                    for (String line : lines) {
+                        if (count % 3 == 0) {
+                            System.out.print("* ");
+                        }
+                        System.out.print(String.format("%-" + maxLength + "s", line) + " ");
+                        count++;
+                        if (count % 3 == 0) {
+                            System.out.println("*");
+                        }
+                    }
+                    if (count % 3 != 0) {
+                        System.out.println(" ".repeat((3 - (count % 3)) * (maxLength + 1)) + "*");
+                    }
+                    System.out.println(horizontalLine);
+
                     String action = utils.getWord(scanner);
                     switch (action) {
-                        case "back": {
+                        case "back","5": {
                             stage--;
                             break;
                         }
-                        case "follow": {
+                        case "follow","1": {
                             if (be.ifFollowed(usr.getName(), reply.getAuthor_account_name())) {
                                 System.out.println("You already followed this minion. Don't love him/her/it too much.");
                             } else {
@@ -642,7 +665,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "show-secondary-reply": {
+                        case "show-secondary-reply","2": {
                             ArrayList<Integer> secondaryReplyList = be.showReply(reply.getId(), false);
                             if (secondaryReplyList.size() != 0) {
                                 boolean[] print = {true, false, true, true, true, true};
@@ -655,7 +678,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "see-secondary-reply-detail": {
+                        case "see-secondary-reply-detail","3": {
                             System.out.println("Please input the id of the secondary reply.");
                             int id = Integer.parseInt(utils.getWord(scanner));
                             ArrayList<Integer> replyIDList = new ArrayList<>();
@@ -668,7 +691,7 @@ public class Application {
                                 reply = new Reply(id, Integer.parseInt(replyInfo.get(1).get(0)), replyInfo.get(2).get(0), Integer.parseInt(replyInfo.get(3).get(0)), Integer.parseInt(replyInfo.get(4).get(0)), replyInfo.get(5).get(0));
                             break;
                         }
-                        case "reply-to-reply": // TODO: check for case break
+                        case "reply-to-reply","4": // TODO: check for case break
                         {
                             System.out.println("Please input the content of your reply. End with a new line.");
                             String content = utils.getLine(scanner);
@@ -682,7 +705,7 @@ public class Application {
                             System.out.println("You just replied to a reply. Thank you!");
                             break;
                         }
-                        case "star-the-current-reply": {
+                        case "star-the-current-reply","6": {
                             be.starReply(reply.getId());
                             System.out.println("You just stared a reply. Thank you!");
                         }
@@ -703,6 +726,19 @@ public class Application {
 
         long end = System.currentTimeMillis();
         System.out.println("Elapsed time: " + (end - start) + "ms");
+    }
+
+    public static void printWrappedContent(String content, int maxLength) {
+        if (content.length() <= maxLength) {
+            System.out.println("* " + String.format("%-" + maxLength + "s", content) + "   *");
+        } else {
+            int endIndex = content.lastIndexOf(" ", maxLength);
+            if (endIndex == -1) {
+                endIndex = maxLength;
+            }
+            System.out.println("* " + String.format("%-" + maxLength + "s", content.substring(0, endIndex)) + "   *");
+            printWrappedContent(content.substring(endIndex).trim(), maxLength);
+        }
     }
 
 }
