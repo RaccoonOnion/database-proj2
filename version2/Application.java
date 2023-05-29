@@ -1,4 +1,4 @@
-// package version2;//package project2;
+package version2;//package project2;
 
 import java.io.*;
 import java.util.*;
@@ -354,19 +354,34 @@ public class Application {
                         }
                         case "show-my-like-list", "11": {
                             boolean[] print = {true, true, false, true, true, true};
-                            utils.printArray2(be.checkPosts(be.showLFSIDList(usr.getName(), "liked"), usr.getName()), "Like list", print, postColumns);
+                            ArrayList<ArrayList<String>> temp = be.checkPosts(be.showLFSIDList(usr.getName(), "liked"), usr.getName());
+                            if (temp.get(0).size() == 0){
+                                System.out.println("You haven't like any post yet");
+                                break;
+                            }
+                            utils.printArray2(temp, "Like list", print, postColumns);
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
                         case "show-my-favor-list", "12": {
                             boolean[] print = {true, true, false, true, true, true};
-                            utils.printArray2(be.checkPosts(be.showLFSIDList(usr.getName(), "favored"), usr.getName()), "Favor list", print, postColumns);
+                            ArrayList<ArrayList<String>> temp = be.checkPosts(be.showLFSIDList(usr.getName(), "favored"), usr.getName());
+                            if (temp.get(0).size() == 0){
+                                System.out.println("You haven't favored any post yet");
+                                break;
+                            }
+                            utils.printArray2(temp, "Favor list", print, postColumns);
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
                         case "show-my-share-list", "13": {
                             boolean[] print = {true, true, false, true, true, true};
-                            utils.printArray2(be.checkPosts(be.showLFSIDList(usr.getName(), "shared"), usr.getName()), "Share list", print, postColumns);
+                            ArrayList<ArrayList<String>> temp = be.checkPosts(be.showLFSIDList(usr.getName(), "shared"), usr.getName());
+                            if (temp.get(0).size() == 0){
+                                System.out.println("You haven't shared any post yet");
+                                break;
+                            }
+                            utils.printArray2(temp, "Share list", print, postColumns);
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
