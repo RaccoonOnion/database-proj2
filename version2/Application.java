@@ -1,4 +1,4 @@
-package version2;//package project2;
+// package version2;//package project2;
 
 import java.io.*;
 import java.util.*;
@@ -136,28 +136,28 @@ public class Application {
                 case 3: {
                     String menu =
                             "  1: 'show-my-block-list'\n" +
-                            "  2: 'show-my-shield-list'\n" +
-                            "  3: 'change-phone-pw'\n" +
-                            "  4: 'show-post'\n" +
-                            "  5: 'show-my-post'\n" +
-                            "  6: 'show-post-detail'\n" +
-                            "  7: 'show-my-reply'\n" +
-                            "  8: 'search-post-by-multi-parameter'\n" +
-                            "  9: 'show-replied-post'\n" +
-                            " 10: 'show-my-follow-list'\n" +
-                            " 11: 'show-my-like-list'\n" +
-                            " 12: 'show-my-favor-list'\n" +
-                            " 13: 'show-my-share-list'\n" +
-                            " 14: 'show-hotList'\n" +
-                            " 15: 'block'\n" +
-                            " 16: 'shield'\n" +
-                            " 17: 'unblock'\n" +
-                            " 18: 'unshield'\n" +
-                            " 19: 'follow'\n" +
-                            " 20: 'unfollow'\n" +
-                            " 21: 'post'\n" +
-                            " 22: 'logoff'\n" +
-                            " 23: 'show-my-phone'";
+                                    "  2: 'show-my-shield-list'\n" +
+                                    "  3: 'change-phone-pw'\n" +
+                                    "  4: 'show-post'\n" +
+                                    "  5: 'show-my-post'\n" +
+                                    "  6: 'show-post-detail'\n" +
+                                    "  7: 'show-my-reply'\n" +
+                                    "  8: 'search-post-by-multi-parameter'\n" +
+                                    "  9: 'show-replied-post'\n" +
+                                    " 10: 'show-my-follow-list'\n" +
+                                    " 11: 'show-my-like-list'\n" +
+                                    " 12: 'show-my-favor-list'\n" +
+                                    " 13: 'show-my-share-list'\n" +
+                                    " 14: 'show-hotList'\n" +
+                                    " 15: 'block'\n" +
+                                    " 16: 'shield'\n" +
+                                    " 17: 'unblock'\n" +
+                                    " 18: 'unshield'\n" +
+                                    " 19: 'follow'\n" +
+                                    " 20: 'unfollow'\n" +
+                                    " 21: 'post'\n" +
+                                    " 22: 'logoff'\n" +
+                                    " 23: 'show-my-phone'";
 
                     String[] lines = menu.split("\n");
                     int maxLength = 0;
@@ -165,16 +165,21 @@ public class Application {
                         maxLength = Math.max(maxLength, line.length());
                     }
 
-                    String horizontalLine = "*" + "*".repeat(maxLength*3 + 4) + "*";
+                    String horizontalLine = "*" + "*".repeat(maxLength * 3 + 4) + "*";
                     System.out.println(horizontalLine);
-                    System.out.println("* " + " ".repeat(maxLength*3+2) + " *");
-                    System.out.println("* " + String.format("%-" + maxLength*3 + "s", "Welcome to the playground!") + "   *");
-                    System.out.println("* " + String.format("%-" + maxLength*3 + "s", "What do you want to do?") + "   *");
-                    System.out.println("* " + " ".repeat(maxLength*3+2) + " *");
+                    System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Welcome to the playground!") + "   *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "What do you want to do?") + "   *");
+                    System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
                     System.out.println(horizontalLine);
                     System.out.println();
 
-                    System.out.println(horizontalLine);
+                    int lineLength = maxLength * 3 + 4;
+                    int centerOffset = (lineLength - 10) / 2; // 计算居中偏移量
+
+                    String Header = "*" + "*".repeat(centerOffset - 1) + " Playground " + "*".repeat(centerOffset) + "*";
+
+                    System.out.println(Header);
                     int count = 0;
                     for (String line : lines) {
                         if (count % 3 == 0) {
@@ -297,7 +302,6 @@ public class Application {
                         }
                         case "show-my-reply", "7": {
                             ArrayList<ArrayList<String>> myReplies = be.checkReplies(be.showMyReplyIDs(usr.getName()), usr.getName());
-//                            System.out.println("content" + myPosts);
                             if (myReplies.get(0).size() == 0) {
                                 System.out.println("Oops! You have not replied to any post yet. Let start replying!");
                             } else {// TODO: test!!
@@ -447,29 +451,46 @@ public class Application {
                 }
                 case 4: // post
                 {
-                    System.out.printf("You are in post %s, ID: %d, author: %s\n", post.getTitle(), post.getPostID(), post.getPost_account_name());
-                    System.out.printf("Post content is: %s\n", post.getContent());
-                    System.out.println("Please select one of the actions: ");
+                    String menu =
+                            "  1: 'like'\n" +
+                                    "  2: 'favor'\n" +
+                                    "  3: 'share'\n" +
+                                    "  4: 'follow'\n" +
+                                    "  5: 'show-reply'\n" +
+                                    "  6: 'see-reply-detail'\n" +
+                                    "  7: 'reply'\n" +
+                                    "  8: 'back'\n";
 
-                    String[] actions = {"like", "favor", "share", "follow", "show-reply", "see-reply-detail", "reply", "back"};
+                    String[] lines = menu.split("\n");
                     int maxLength = 0;
-                    for (String act : actions) {
-                        maxLength = Math.max(maxLength, act.length());
+                    for (String line : lines) {
+                        maxLength = Math.max(maxLength, line.length());
                     }
 
-                    String horizontalLine = "*" + "*".repeat(maxLength * 3 + 6) + "*";
-                    System.out.println(horizontalLine);
+                    String horizontalLine = "*" + "*".repeat(maxLength * 3 + 4) + "*";
+                    int lineLength = maxLength * 3 + 4;
+                    int centerOffset = (lineLength - 10) / 2;
 
+                    String Header = "*" + "*".repeat(centerOffset - 1) + " Playground " + "*".repeat(centerOffset) + "*";
+
+                    System.out.println(Header);
+                    System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Welcome to the playground!") + "   *");
+                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "What do you want to do?") + "   *");
+                    System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
+                    System.out.println(horizontalLine);
+                    System.out.println();
+
+                    System.out.println(horizontalLine);
                     int count = 0;
-                    for (int i = 0; i < actions.length; i++) {
+                    for (String line : lines) {
                         if (count % 3 == 0) {
                             System.out.print("* ");
                         }
-                        String actionNumber = String.format("%d. ", i + 1);
-                        System.out.print(String.format("%-2s%-"+ (maxLength + 1) + "s", actionNumber, actions[i]));
+                        System.out.print(String.format("%-" + maxLength + "s", line) + " ");
                         count++;
                         if (count % 3 == 0) {
-                            System.out.println(" *");
+                            System.out.println("*");
                         }
                     }
                     if (count % 3 != 0) {
@@ -478,23 +499,57 @@ public class Application {
                     System.out.println(horizontalLine);
 
                     String action = utils.getWord(scanner);
+
+
+//                    System.out.printf("You are in post %s, ID: %d, author: %s\n", post.getTitle(), post.getPostID(), post.getPost_account_name());
+//                    System.out.printf("Post content is: %s\n", post.getContent());
+//                    System.out.println("Please select one of the actions: ");
+//
+//                    String[] actions = {
+//                    int maxLength = 0;
+//                    for (String act : actions) {
+//                        maxLength = Math.max(maxLength, act.length());
+//                    }
+//
+//                    String horizontalLine = "*" + "*".repeat(maxLength * 3 + 6) + "*";
+//                    System.out.println(horizontalLine);
+//
+//                    int count = 0;
+//                    for (int i = 0; i < actions.length; i++) {
+//                        if (count % 3 == 0) {
+//                            System.out.print("* ");
+//                        }
+//                        String actionNumber = String.format("%d. ", i + 1);
+//                        System.out.print(String.format("%-2s%-"+ (maxLength + 1) + "s", actionNumber, actions[i]));
+//                        count++;
+//                        if (count % 3 == 0) {
+//                            System.out.println(" *");
+//                        }
+//                    }
+//                    if (count % 3 != 0) {
+//                        System.out.println(" ".repeat((3 - (count % 3)) * (maxLength + 1)) + "*");
+//                    }
+//                    System.out.println(horizontalLine);
+//
+//                    String action = utils.getWord(scanner);
+
                     switch (action) {
-                        case "like","1": {
+                        case "like", "1": {
                             be.lfsPost(usr.getName(), post.getPostID(), "liked");
                             System.out.println("You liked it, thank you!");
                             break;
                         }
-                        case "favor","2": {
+                        case "favor", "2": {
                             be.lfsPost(usr.getName(), post.getPostID(), "favored");
                             System.out.println("You favored it, thank you!");
                             break;
                         }
-                        case "share","3": {
+                        case "share", "3": {
                             be.lfsPost(usr.getName(), post.getPostID(), "shared");
                             System.out.println("You shared it, thank you!");
                             break;
                         }
-                        case "follow","4": {
+                        case "follow", "4": {
                             if (be.ifFollowed(usr.getName(), post.getPost_account_name())) {
                                 System.out.println("You already followed this minion. Don't love him/her/it too much.");
                             } else {
@@ -503,7 +558,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "show-reply","5": {
+                        case "show-reply", "5": {
                             boolean[] print = {true, false, true, true, true, true};
                             ArrayList<Integer> firstLevelReplyList = be.showReply(post.getPostID(), true);
                             if (firstLevelReplyList.size() == 0) {
@@ -515,7 +570,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "see-reply-detail","6": {
+                        case "see-reply-detail", "6": {
                             System.out.println("Please input the id of the reply you want to see");
                             int id = Integer.parseInt(utils.getWord(scanner));
                             ArrayList<Integer> replyIDList = new ArrayList<>();
@@ -529,7 +584,7 @@ public class Application {
                             stage = 5;
                             break;
                         }
-                        case "reply","7": {
+                        case "reply", "7": {
                             System.out.println("Please input the content of your reply. End with a new line.");
                             String content = utils.getLine(scanner);
 
@@ -543,7 +598,7 @@ public class Application {
                             System.out.println("You just replied to a post. Thank you!");
                             break;
                         }
-                        case "back","8": {
+                        case "back", "8": {
                             stage--;
                             break;
                         }
