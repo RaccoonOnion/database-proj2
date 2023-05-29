@@ -442,7 +442,7 @@ public class Application {
                             replyIDList.add(id);
                             ArrayList<ArrayList<String>> replyInfo = be.checkReplies(replyIDList, usr.getName());
                             if (replyInfo.get(1).size() == 0) {
-                                System.out.println("Opps , it seems you can't see this post");
+                                System.out.println("Opps , it seems you can't see this reply");
                                 stage = 3;
                             } else
                             reply = new Reply(id, Integer.parseInt(replyInfo.get(1).get(0)), replyInfo.get(2).get(0), Integer.parseInt(replyInfo.get(3).get(0)), Integer.parseInt(replyInfo.get(4).get(0)), replyInfo.get(5).get(0));
@@ -512,7 +512,7 @@ public class Application {
                             replyIDList.add(id);
                             ArrayList<ArrayList<String>> replyInfo = be.checkReplies(replyIDList, usr.getName());
                             if (replyInfo.get(1).size() == 0) {
-                                System.out.println("Opps , it seems you can't see this post");
+                                System.out.println("Opps , it seems you can't see this reply");
                                 stage = 3;
                             } else
                             reply = new Reply(id, Integer.parseInt(replyInfo.get(1).get(0)), replyInfo.get(2).get(0), Integer.parseInt(replyInfo.get(3).get(0)), Integer.parseInt(replyInfo.get(4).get(0)), replyInfo.get(5).get(0));
