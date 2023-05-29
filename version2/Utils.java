@@ -1,4 +1,4 @@
-package version2;
+// package version2;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,12 +8,10 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Utils {// TODO: generic resultset process function
-    public <T> void printArray(ArrayList<T> array, String name, boolean[] print) {
-        int cnt = 0;
+    public <T> void printArray(ArrayList<T> array, String name) {
         System.out.printf("%s list:\n", name);
         for (T element : array) {
-            if (print[cnt]) System.out.printf("%s ",element);
-            cnt ++;
+             System.out.printf("%s ",element);
         }
         System.out.println();
     }
