@@ -7,14 +7,16 @@ import java.sql.Timestamp;
 public class Backend {// 批处理
     private static boolean debug;
     private static Statement stmt = null;
+    private static Statement stmt1 = null;
 
     private static ResultSet resultSet = null;
 
     public Backend(Connection con, Boolean debug) {//构造方法
         this.debug = debug;
         try {
-            if (con != null && stmt == null) {
+            if (con != null && stmt == null && stmt1 == null) {
                 stmt = con.createStatement();
+                stmt1 = con.createStatement();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -108,13 +110,43 @@ public class Backend {// 批处理
         }
     }
 
+    protected ArrayList<String> getNameCantSee(String name) {
+        ArrayList<String> result = new ArrayList<>();
+        String sql = String.format("select shielded_name from shielding where shielder_name = '%s';",
+                name);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            resultSet = stmt.executeQuery(sql);
+            // 处理结果
+            while (resultSet.next()) {
+                String temp = resultSet.getString("shielded_name");
+                result.add(temp);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        sql = String.format("select blocker_name from block where blocked_name = '%s';",
+                name);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            resultSet = stmt.executeQuery(sql);
+            // 处理结果
+            while (resultSet.next()) {
+                String temp = resultSet.getString("blocker_name");
+                result.add(temp);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
 
     /*
     这个函数实现了利用帖⼦ID list查看post
     输出：ArrayList<ArrayList<String>> postList
     期中依次序存放着：postIdList， titleList， contentList， datetimeList， cityList，post_account_name 类型都为ArrayList<String>
      */
-    protected ArrayList<ArrayList<String>> checkPosts(ArrayList<Integer> postIDList) {
+    protected ArrayList<ArrayList<String>> checkPosts(ArrayList<Integer> postIDList,String userName) {
         ArrayList<ArrayList<String>> postList = new ArrayList<>();
         ArrayList<String> postIdList = new ArrayList<>();
         ArrayList<String> titleList = new ArrayList<>();
@@ -129,6 +161,8 @@ public class Backend {// 批处理
         postList.add(cityList);
         postList.add(postAccountNameList);
 
+        ArrayList<String> NameCantSee = getNameCantSee(userName);
+
         for (int postID : postIDList) {
             String sql = String.format("SELECT * FROM post WHERE post_id = %d;",
                     postID);
@@ -137,6 +171,8 @@ public class Backend {// 批处理
                 resultSet = stmt.executeQuery(sql);
                 // 处理结果
                 while (resultSet.next()) {
+                    if (NameCantSee.contains(resultSet.getString("post_account_name"))) continue;
+
                     int postId = resultSet.getInt("post_id");
                     String title = resultSet.getString("title");
                     String content = resultSet.getString("content");
@@ -166,7 +202,7 @@ public class Backend {// 批处理
 输出：ArrayList<ArrayList<String>> replyList
 期中依次序存放着：idList, replyIDList， contentList， starNumList, postIDList, authorAccountNameList， 类型都为ArrayList<String>
  */
-    protected ArrayList<ArrayList<String>> checkReplies(ArrayList<Integer> replyIDList) {
+    protected ArrayList<ArrayList<String>> checkReplies(ArrayList<Integer> replyIDList,String userName) {
         ArrayList<ArrayList<String>> replyList = new ArrayList<>();
         ArrayList<String> idList = new ArrayList<>();
         ArrayList<String> replyIdList = new ArrayList<>();
@@ -181,6 +217,8 @@ public class Backend {// 批处理
         replyList.add(postIDList);
         replyList.add(authorAccountNameList);
 
+        ArrayList<String> NameCantSee = getNameCantSee(userName);
+
         for (int id : replyIDList) {
             String sql = String.format("SELECT * FROM reply WHERE id = %d;",
                     id);
@@ -189,6 +227,8 @@ public class Backend {// 批处理
                 resultSet = stmt.executeQuery(sql);
                 // 处理结果
                 while (resultSet.next()) {
+                    if (NameCantSee.contains(resultSet.getString("post_account_name"))) continue;
+
                     String replyId = resultSet.getInt("reply_id") + "";
                     String content = resultSet.getString("content");
                     String starNum = resultSet.getInt("stars") + "";
@@ -298,7 +338,6 @@ public class Backend {// 批处理
         boolean succeedC = categorize(postid, categories);
         return succeedC && succeedP;
     }
-
     /*
     Posting 发帖：通过入参title，content，city，name 在post表中加入相应内容
         发表了类似的帖子
@@ -374,12 +413,63 @@ public class Backend {// 批处理
         }
     }
 
+    protected void blockAccount(String blockedName, String blockerName) {
+        blockedName = blockedName.replaceAll("'", "''");
+        blockerName = blockerName.replaceAll("'", "''");
+        String sql = String.format("insert into block(blockName,blockerName) VALUES ('%s','%s');",
+                blockedName, blockerName);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
+    protected void shieldAccount(String shieldedName, String shielderName) {
+        shieldedName = shieldedName.replaceAll("'", "''");
+        shielderName = shielderName.replaceAll("'", "''");
+        String sql = String.format("insert into Shielding(shielded_name ,shielder_name ) VALUES ('%s','%s');",
+                shieldedName, shielderName);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
     protected void unfollowAccount(String followerName, String followeeName) {
-        followerName.replaceAll("'", "''");
-        followeeName.replaceAll("'", "''");
+        followerName = followerName.replaceAll("'", "''");
+        followeeName = followeeName.replaceAll("'", "''");
         String sql = String.format("DELETE FROM follow WHERE follower_name = '%s' and followee_name = '%s';",
                 followerName, followeeName);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void unBlockAccount(String blockedName, String blockerName) {
+        blockedName = blockedName.replaceAll("'", "''");
+        blockerName = blockerName.replaceAll("'", "''");
+        String sql = String.format("DELETE FROM block WHERE blocked_name = '%s' and blocker_name = '%s';",
+                blockedName, blockerName);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void unShieldAccount(String shieldedName, String shielderName) {
+        shieldedName = shieldedName.replaceAll("'", "''");
+        shielderName = shielderName.replaceAll("'", "''");
+        String sql = String.format("DELETE FROM follow WHERE shielded_name = '%s' and shielder_name = '%s';",
+                shieldedName, shielderName);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             stmt.execute(sql);
@@ -535,6 +625,81 @@ public class Backend {// 批处理
             stmt.execute(sql);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    protected ArrayList<ArrayList<String>> checkPostsMultiParameter(String keywords, String start, String end,String City,String Author_name) {
+        ArrayList<ArrayList<String>> postList = new ArrayList<>();
+        ArrayList<String> postIdList = new ArrayList<>();
+        ArrayList<String> titleList = new ArrayList<>();
+        ArrayList<String> contentList = new ArrayList<>();
+        ArrayList<String> datetimeList = new ArrayList<>();
+        ArrayList<String> cityList = new ArrayList<>();
+        ArrayList<String> postAccountNameList = new ArrayList<>();
+        postList.add(postIdList);
+        postList.add(titleList);
+        postList.add(contentList);
+        postList.add(datetimeList);
+        postList.add(cityList);
+        postList.add(postAccountNameList);
+
+        keywords = keywords.replaceAll("'","''");
+        City = City.replaceAll("'","''");
+        Author_name = Author_name.replaceAll("'","''");
+        String sql = "SELECT * FROM post WHERE 1 = 1";
+        if (keywords != "") sql += " and content like '%"+keywords+"%'";
+        if (start != "" ) sql += " and datetime >= '" + String.valueOf(Timestamp. valueOf(start)) +"'";
+        if (end != "") sql += " and datetime <= '" + String.valueOf(Timestamp.valueOf(end)) + "'";
+        if (City != "") sql += " and city like '%" + City + "%'";
+        if (Author_name != "") sql += " and post_account_name = '" + Author_name + "'";
+
+            if (debug) System.out.println("Executing sql command: " + sql);
+            try {
+                resultSet = stmt.executeQuery(sql);
+                // 处理结果
+                while (resultSet.next()) {
+                    int postId = resultSet.getInt("post_id");
+
+                    String SQL = String.format("update searchCount set numOfSearched = numOfSearched + 1 where post_id = %d;",postId);
+                    stmt1.execute(SQL);
+
+                    String title = resultSet.getString("title");
+                    String content = resultSet.getString("content");
+                    String datetime = String.valueOf(resultSet.getTimestamp("datetime"));
+                    String city = resultSet.getString("city");
+
+                    String name = resultSet.getBoolean("anonymous") ? "***Anonymous***" : resultSet.getString("post_account_name");
+
+                    // 处理每一行数据
+                    postIdList.add(postId + "");
+                    titleList.add(title);
+                    contentList.add(content);
+                    datetimeList.add(datetime);
+                    cityList.add(city);
+                    postAccountNameList.add(name);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+        return postList;
+    }
+
+    protected ArrayList<Integer> showHotlist() {
+        ArrayList<Integer> replyIDList = new ArrayList<>();
+        String sql = String.format("select post_id from searchcount where numOfSearched != 0 order by numOfSearched desc limit 10;");
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            resultSet = stmt.executeQuery(sql);
+            // 处理结果
+            while (resultSet.next()) {
+                int replyId = resultSet.getInt("post_id");
+                // 处理每一行数据
+                replyIDList.add(replyId);
+            }
+            return replyIDList;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }
