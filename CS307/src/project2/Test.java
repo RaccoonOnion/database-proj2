@@ -1,8 +1,6 @@
 package project2;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.sql.*;
 
@@ -16,10 +14,11 @@ public class Test {
     protected static Connection con = null;
     private static Statement stmt1 = null;
 
-    private static final int ACCOUNT_COUNT = 10000;
-    private static final int POST_COUNT = 10000;
+    private static final int ACCOUNT_COUNT = 100;
+    private static final int POST_COUNT = 100;
     private static final int PHONE_LENGTH = 11;
-    private static final int LFS_COUNT = 10000;
+    private static final int LFS_COUNT = 100;
+    private static final int REPLY_COUNT = 100;
 
 
     private static void openDB(Properties prop) {
@@ -70,7 +69,6 @@ public class Test {
 
     public static void main(String[] args) {
 
-
         long start = System.currentTimeMillis();
         Properties prop = loadDBUser();
         int cntTotal = 0;
@@ -79,14 +77,13 @@ public class Test {
         Fundamental fundamental = new Fundamental(con);
 
         accountInserting(fundamental);
-//        postInserting(fundamental);
-//        likedInserting(fundamental);
-//        sharedInserting(fundamental);
-//        favoredInserting(fundamental);
-//        followInserting(fundamental);
-          replyInserting(fundamental);
-//        System.out.println(fundamental.showMyPost("LoWzazOPAB"));
-
+        postInserting(fundamental);
+        likedInserting(fundamental);
+        sharedInserting(fundamental);
+        favoredInserting(fundamental);
+        followInserting(fundamental);
+        primaryReplyInserting(fundamental);
+        secondaryReplyInserting(fundamental);
 
         closeDB();
 
@@ -106,7 +103,7 @@ public class Test {
         }
         System.out.println("Test data generated and inserted successfully.");
     }
-    public static void postInserting(Fundamental fundamental) {
+    private static void postInserting(Fundamental fundamental) {
         ArrayList<String> accountNames = fundamental.getAllAccountNames();
         Random random = new Random();
         for (int i = 0; i < POST_COUNT; i++) {
@@ -114,11 +111,11 @@ public class Test {
             String content = generateRandomString(100);
             String city = generateRandomCity();
             String name = accountNames.get(random.nextInt(accountNames.size()));
-            String[] categories = generateRandomForumPostTypes(3);
+            List<String> categories = generateRandomCategories(random.nextInt(10));
             fundamental.post(title, content, city, name,categories);
         }
     }
-    public static void likedInserting(Fundamental fundamental) {
+    private static void likedInserting(Fundamental fundamental) {
         ArrayList<String> accountNames = fundamental.getAllAccountNames();
         ArrayList<Integer> postIds = fundamental.getAllPostIds();
 
@@ -131,7 +128,7 @@ public class Test {
         }
         System.out.println("Liked data inserted successfully.");
     }
-    public static void sharedInserting(Fundamental fundamental) {
+    private static void sharedInserting(Fundamental fundamental) {
         ArrayList<String> accountNames = fundamental.getAllAccountNames();
         ArrayList<Integer> postIds = fundamental.getAllPostIds();
 
@@ -144,7 +141,7 @@ public class Test {
         }
         System.out.println("Shared data inserted successfully.");
     }
-    public static void favoredInserting(Fundamental fundamental) {
+    private static void favoredInserting(Fundamental fundamental) {
         ArrayList<String> accountNames = fundamental.getAllAccountNames();
         ArrayList<Integer> postIds = fundamental.getAllPostIds();
 
@@ -157,15 +154,15 @@ public class Test {
         }
         System.out.println("Favored data inserted successfully.");
     }
-    public static void followInserting(Fundamental fundamental) {
+    private static void followInserting(Fundamental fundamental) {
         ArrayList<String> accountNames = fundamental.getAllAccountNames();
         Random random = new Random();
         for (String follower : accountNames) {
             // Generate random number of followings for each follower
-            int numFollowings = random.nextInt(accountNames.size() - 1); // Randomly select number of followings
+            int numFollowings = random.nextInt(accountNames.size() - 1)/4000; // Randomly select number of followings
             HashSet<String> followingSet = new HashSet<>();
             while (followingSet.size() < numFollowings) {
-                String following = accountNames.get(random.nextInt(accountNames.size() / 4000)); // Randomly select a following
+                String following = accountNames.get(random.nextInt(accountNames.size())); // Randomly select a following
                 if (!following.equals(follower) && !followingSet.contains(following)) {
                     followingSet.add(following);
                 }
@@ -177,20 +174,46 @@ public class Test {
             }
         }
     }
-    public static void replyInserting(Fundamental fundamental) {
+    private static void primaryReplyInserting(Fundamental fundamental) {
         ArrayList<Integer> postIds = fundamental.getAllPostIds();
         ArrayList<String> accountNames = fundamental.getAllAccountNames();
         Random random = new Random();
 
-        for (int replyId = 1; replyId <= 10; replyId++) {
+        for (int replyId = 1; replyId <= REPLY_COUNT; replyId++) {
             int postId = postIds.get(random.nextInt(postIds.size()));
             String accountName = accountNames.get(random.nextInt(accountNames.size()));
             String content = "This is a reply.";
-            fundamental.reply(replyId, postId, content, accountName);
+            fundamental.reply(-replyId, postId, content, accountName);
+        }
+    }
+    private static void secondaryReplyInserting(Fundamental fundamental) {
+        // 生成测试用例数据
+        Random random = new Random();
+        int numAuthors = random.nextInt(3); // 随机生成作者数量
+
+        // 获取所有账户名
+        ArrayList<String> accountNames = fundamental.getAllAccountNames();
+
+        // 插入次级回复
+        ArrayList<int[]> replyIdsAndPostIds = fundamental.getAllReplyIdsAndPostIds();
+        for (int[] reply : replyIdsAndPostIds) {
+            int topLevelReplyId = reply[0]; // 上一级回复的id
+            int postId = reply[1]; // 帖子的post_id
+
+            // 选择次级回复的作者
+            String author = accountNames.get(random.nextInt(accountNames.size() - 1));
+
+            // 插入次级回复，其中次级回复的reply_id指向上一级回复的id
+            for (int i = 0; i < numAuthors; i++) {
+                int replyId = Math.abs(topLevelReplyId); // 次级回复的reply_id
+                String content = "次级回复内容 " + (i + 1) + "，对应一级回复 " + topLevelReplyId;
+                fundamental.reply(replyId, postId, content, author);
+            }
         }
     }
 
-    public static String generateRandomPhone(int length) {
+
+    private static String generateRandomPhone(int length) {
         String numberChar = "0123456789";
         StringBuffer sb = new StringBuffer();
         Random random = new Random();
@@ -199,8 +222,7 @@ public class Test {
         }
         return sb.toString();
     }
-
-    public static String generateRandomID(int length) {
+    private static String generateRandomID(int length) {
         String numberChar = "0123456789X";
         StringBuffer sb = new StringBuffer();
         Random random = new Random();
@@ -209,7 +231,6 @@ public class Test {
         }
         return sb.toString();
     }
-
     private static String generateRandomName() {
         String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         StringBuilder sb = new StringBuilder();
@@ -220,7 +241,6 @@ public class Test {
         }
         return sb.toString();
     }
-
     private static String generateRandomString(int length) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ';l,.!@#$%^&*(){}[],.<>?/??》";
         StringBuilder sb = new StringBuilder(length);
@@ -232,7 +252,6 @@ public class Test {
         }
         return sb.toString();
     }
-
     private static String generateRandomCity() {
         String[] cities = { "New York", "London", "Tokyo", "Paris", "Berlin", "Sydney", "Toronto", "Dubai" ,
                 "北京", "上海", "广州", "深圳", "杭州", "南京", "重庆", "成都", "武汉", "西安",
@@ -249,16 +268,25 @@ public class Test {
         int index = random.nextInt(cities.length);
         return cities[index];
     }
-
-    private static String[] generateRandomForumPostTypes(int numTypes) {
-        String[] types = new String[numTypes];
-        String[] postTypes = { "问题讨论", "技术分享", "新闻资讯", "经验分享", "资源推荐", "学术研究", "行业动态", "活动公告" };
+    private static List<String> generateRandomCategories(int n) {
+        String[] categories = {
+                "Technology", "Sports", "Fashion", "Food", "Travel", "Music", "Art", "Health", "Business"
+        };
         Random random = new Random();
-        for (int i = 0; i < numTypes; i++) {
-            types[i] = postTypes[i];
+        List<String> selectedCategories = new ArrayList<>();
+
+        while (selectedCategories.size() < n) {
+            int index = random.nextInt(categories.length);
+            String category = categories[index];
+            if (!selectedCategories.contains(category)) {
+                selectedCategories.add(category);
+            }
         }
-        return types;
+
+        return selectedCategories;
     }
+
+
 
 
 }

@@ -204,7 +204,7 @@ public class Fundamental {// 批处理
     /*
     post 发布帖子： 由两个函数组成，posting函数更新post表中的内容 同时category更新了post_category和category两张表的内容
      */
-    protected void post( String title, String content, String city, String name,String[] categories){
+    protected void post( String title, String content, String city, String name,List<String> categories){
         int postid = getMaxPostId();
         posting(postid,title,content,city,name);
         category(postid,categories);
@@ -232,12 +232,11 @@ public class Fundamental {// 批处理
     /*
     category 归类帖子的种类： 与数据库层面的trigger一同更新对应postId的种类
      */
-    protected void category(int postId, String[] categories) {
-        for (int i = 0; i < categories.length; i++) {
-            categories[i] = categories[i].replaceAll("'", "''");
-
+    protected void category(int postId, List<String> categories) {
+        for (int i = 0; i < categories.size(); i++) {
+            categories.set(i,categories.get(i).replaceAll("'", "''"));
             String sql = String.format("insert into post_category(category_name,post_id) VALUES ('%s','%s');",
-                   categories[i], postId);
+                   categories.get(i), postId);
             System.out.println("Executing sql command: " + sql);
             try {
                 stmt1.execute(sql);
@@ -372,6 +371,24 @@ public class Fundamental {// 批处理
                 return maxPostId + 1;
             }
             return 0; // 如果没有查询到结果，默认返回0或其他合适的默认值
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ArrayList<int[]> getAllReplyIdsAndPostIds() {
+        ArrayList<int[]> replyIdsAndPostIds = new ArrayList<>();
+        String sql = "SELECT reply_id, post_id FROM reply;";
+        System.out.println("Executing sql command: " + sql);
+        try {
+            resultSet = stmt1.executeQuery(sql);
+            while (resultSet.next()) {
+                int replyId = resultSet.getInt("reply_id");
+                int postId = resultSet.getInt("post_id");
+                int[] replyIdAndPostId = {replyId, postId};
+                replyIdsAndPostIds.add(replyIdAndPostId);
+            }
+            return replyIdsAndPostIds;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
