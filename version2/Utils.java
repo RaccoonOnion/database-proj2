@@ -1,4 +1,4 @@
-// package version2;
+package version2;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,6 +15,22 @@ public class Utils {// TODO: generic resultset process function
         }
         System.out.println();
     }
+    public static  <T>ArrayList<ArrayList<String>> transfor(ArrayList<ArrayList<T>> input){
+        ArrayList<ArrayList<String>> result = new ArrayList<>();
+        int numRows = input.size();
+        int numCols = input.get(0).size();
+
+        for (int j = 0; j < numCols; j++) {
+            ArrayList<String> newRow = new ArrayList<>();
+            for (int i = 0; i < numRows; i++) {
+                newRow.add(input.get(i).get(j).toString());
+            }
+            result.add(newRow);
+        }
+        
+        return result;
+    }
+
 
     public <T> void printArray2(ArrayList<ArrayList<T>> array2, String name, boolean[] print, String[] column) {
         System.out.printf("%s lists\n", name);
@@ -23,19 +39,22 @@ public class Utils {// TODO: generic resultset process function
         int col = 0;
         for (ArrayList<T> array : array2) {
             int row = 0;
-                for (T element : array){
-                    if (col == 0) outputList[row] = String.format("post#%s\n%s: %s ", row, column[col], element);
-                    else {
-                        if (print[col]) outputList[row] += String.format("%s: \"%s\" ", column[col], element);
-                    }
-                    row += 1;
+            for (T element : array){
+                if (col == 0) outputList[row] = String.format("\npost#%s\n%s: %s ", row+1, column[col], element);
+                else {
+                    if (print[col]) outputList[row] += String.format("\n%s: \"%s\" ", column[col], element);
                 }
+                row += 1;
+            }
             col += 1;
         }
         for (String post : outputList){
             System.out.println(post);
+            System.out.println();
         }
     }
+
+
 
     public String generateRandomPhone(int length) {
         String numberChar = "0123456789";
