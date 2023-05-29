@@ -31,7 +31,6 @@ public class Utils {// TODO: generic resultset process function
         return result;
     }
 
-
     public <T> void printArray2(ArrayList<ArrayList<T>> array2, String name, boolean[] print, String[] column) {
         System.out.printf("%s lists\n", name);
         int numOfPost = array2.get(0).size();
@@ -39,13 +38,13 @@ public class Utils {// TODO: generic resultset process function
         int col = 0;
         for (ArrayList<T> array : array2) {
             int row = 0;
-            for (T element : array){
-                if (col == 0) outputList[row] = String.format("\npost#%s\n%s: %s ", row+1, column[col], element);
-                else {
-                    if (print[col]) outputList[row] += String.format("\n%s: \"%s\" ", column[col], element);
+                for (T element : array){
+                    if (col == 0) outputList[row] = String.format("\npost#%s\n%s: %s ", row+1, column[col], element);
+                    else {
+                        if (print[col]) outputList[row] += String.format("\n%s: \"%s\" ", column[col], element);
+                    }
+                    row += 1;
                 }
-                row += 1;
-            }
             col += 1;
         }
         for (String post : outputList){
@@ -53,8 +52,6 @@ public class Utils {// TODO: generic resultset process function
             System.out.println();
         }
     }
-
-
 
     public String generateRandomPhone(int length) {
         String numberChar = "0123456789";
