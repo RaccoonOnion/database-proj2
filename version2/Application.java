@@ -135,33 +135,49 @@ public class Application {
                 }
                 case 3: {
                     System.out.println("Welcome to the playground! What do you want to do? "
-                            + "['show-post','show-my-post', 'show-post-detail','show-my-reply', 'search-post-by-multi-parameter','show-replied-post', 'show-my-follow-list', " +
+                            + "['show-my-block-list','show-my-shield-list','change-phone-pw','show-post','show-my-post', 'show-post-detail','show-my-reply', 'search-post-by-multi-parameter','show-replied-post', 'show-my-follow-list','show-my-phone' " +
                             "\n'show-my-like-list','show-my-favor-list','show-my-share-list','show-hotList','block','shield','unblock','unshield'" +
                             "\n'follow', 'unfollow','post','logoff']");
                     String action = utils.getWord(scanner);
                     switch (action) {
-                        case "unblock":{
+                        case "show-my-phone": {
+                            System.out.printf("Your phone number is: %s. Note that the default phone number is 12345678900. You can change it with change-phone-pw.\n", be.showMyPhone(usr.getName()).get(0));
+                            break;
+                        }
+                        case "change-phone-pw": {
+                            System.out.println("Please input the phone number and the password you want to change, separated by a space, end with new line.");
+                            String phone = scanner.next();
+                            String pw = utils.getWord(scanner);
+                            boolean succeed = be.changeAccountDetail(usr.getName(), phone, pw);
+                            if (succeed) {
+                                System.out.println("Your phone number and password have been successfully set up!!");
+                            } else {
+                                System.out.println("Sorry, there is some problem with the backend.");
+                            }
+                            break;
+                        }
+                        case "unblock": {
                             System.out.println("Please input the account id you want to unblock:");
                             String name = utils.getWord(scanner);
                             be.unBlockAccount(name, usr.getName());
                             System.out.println("You unblock a person, thank you!");
                             break;
                         }
-                        case "unshield":{
+                        case "unshield": {
                             System.out.println("Please input the account id you want to unshield:");
                             String name = utils.getWord(scanner);
                             be.unShieldAccount(name, usr.getName());
                             System.out.println("You unshield a person, thank you!");
                             break;
                         }
-                        case "block":{
+                        case "block": {
                             System.out.println("Please input the account id you want to block:");
                             String name = utils.getWord(scanner);
                             be.blockAccount(name, usr.getName());
                             System.out.println("You block a person, thank you!");
                             break;
                         }
-                        case "shield":{
+                        case "shield": {
                             System.out.println("Please input the account id you want to shield:");
                             String name = utils.getWord(scanner);
                             be.shieldAccount(name, usr.getName());
@@ -176,12 +192,12 @@ public class Application {
                         case "show-post":// TODO: show only the first n posts
                         {
                             boolean[] print = {false, true, false, true, true, true};
-                            utils.printArray2(be.checkPosts(be.getAllPostIds(),usr.getName()), "post", print, postColumns);
+                            utils.printArray2(be.checkPosts(be.getAllPostIds(), usr.getName()), "post", print, postColumns);
                             System.out.println("You can see the post detail with postID");
                             break;
                         }
                         case "show-my-post": {
-                            ArrayList<ArrayList<String>> myPosts = be.checkPosts(be.showMyPostIDs(usr.getName()),usr.getName());
+                            ArrayList<ArrayList<String>> myPosts = be.checkPosts(be.showMyPostIDs(usr.getName()), usr.getName());
 //                            System.out.println("content" + myPosts);
                             if (myPosts.get(0).size() == 0) {
                                 System.out.println("Oops! You have not posted anything yet. Let start posting!");
@@ -200,11 +216,15 @@ public class Application {
                             for (String id : input) {
                                 postIDs.add(Integer.parseInt(id));
                             }
-                            ArrayList<ArrayList<String>> postInfo = be.checkPosts(postIDs,usr.getName());
-                            post = new Post(postIDs.get(0), postInfo.get(1).get(0), postInfo.get(2).get(0), postInfo.get(3).get(0), postInfo.get(4).get(0), postInfo.get(5).get(0));
+                            ArrayList<ArrayList<String>> postInfo = be.checkPosts(postIDs, usr.getName());
+                            if (postInfo.get(1).size() == 0) {
+                                System.out.println("Opps , it seems you can't see this post");
+                                stage = 3;
+                            } else
+                                post = new Post(postIDs.get(0), postInfo.get(1).get(0), postInfo.get(2).get(0), postInfo.get(3).get(0), postInfo.get(4).get(0), postInfo.get(5).get(0));
                             break;
                         }
-                        case "search-post-by-multi-parameter":{
+                        case "search-post-by-multi-parameter": {
                             System.out.println("Please enter the keywords (enter an empty line if you don't want it)");
                             String keywords = scanner.nextLine();
                             System.out.println("Please enter the start and end time (enter an empty line if you don't want it)");
@@ -214,13 +234,15 @@ public class Application {
                             String city = scanner.nextLine();
                             System.out.println("Please enter the author's name (enter an empty line if you don't want it)");
                             String authorName = scanner.nextLine();
-                            ArrayList<ArrayList<String>> postInfo = be.checkPostsMultiParameter(keywords,startTime,endTime,city,authorName) ;
+                            ArrayList<ArrayList<String>> postInfo = be.checkPostsMultiParameter(keywords, startTime, endTime, city, authorName);
+                            if (postInfo.get(0).size() != 0){
                             boolean[] print = {false, true, false, true, true, true};
-                            utils.printArray2(postInfo,"selected post",print,postColumns);
+                            utils.printArray2(postInfo, "selected post", print, postColumns);}
+                            else System.out.println("There is no such post");
                             break;
                         }
                         case "show-my-reply": {
-                            ArrayList<ArrayList<String>> myReplies = be.checkReplies(be.showMyReplyIDs(usr.getName()),usr.getName());
+                            ArrayList<ArrayList<String>> myReplies = be.checkReplies(be.showMyReplyIDs(usr.getName()), usr.getName());
 //                            System.out.println("content" + myPosts);
                             if (myReplies.get(0).size() == 0) {
                                 System.out.println("Oops! You have not replied to any post yet. Let start replying!");
@@ -232,7 +254,7 @@ public class Application {
                             break;
                         }
                         case "show-replied-post": {
-                            ArrayList<ArrayList<String>> repliedPost = be.checkPosts(be.showMyRepliedPostIDs(usr.getName()),usr.getName());
+                            ArrayList<ArrayList<String>> repliedPost = be.checkPosts(be.showMyRepliedPostIDs(usr.getName()), usr.getName());
 //                            System.out.println("content" + myPosts);
                             if (repliedPost.get(0).size() == 0) {
                                 System.out.println("Oops! You have not replied to anything yet. Let's start replying!");
@@ -244,41 +266,60 @@ public class Application {
                             break;
                         }
                         case "show-my-follow-list": {
-                            boolean[] print = {true};
                             ArrayList<String> followList = be.showFollowNameList(usr.getName());
                             if (followList.size() == 0) {
                                 System.out.println("You have not followed anyone. Start following!");
                             } else {
-                                utils.printArray(be.showFollowNameList(usr.getName()), "My follow list", print);
+                                utils.printArray(be.showFollowNameList(usr.getName()), "My follow list");
+                            }
+                            break;
+                        }
+                        case "show-my-block-list": {
+                            boolean[] print = {true};
+                            ArrayList<String> followList = be.getBlockedAccount(usr.getName());
+                            if (followList.size() == 0) {
+                                System.out.println("You have not block anyone. Start blocking!");
+                            } else {
+                                utils.printArray(be.getBlockedAccount(usr.getName()), "My block list");
+                            }
+                            break;
+                        }
+                        case "show-my-shield-list": {
+                            boolean[] print = {true};
+                            ArrayList<String> followList = be.getShieldAccount(usr.getName());
+                            if (followList.size() == 0) {
+                                System.out.println("You have not shield anyone. Start shielding!");
+                            } else {
+                                utils.printArray(be.getShieldAccount(usr.getName()), "My shield list");
                             }
                             break;
                         }
                         case "show-my-like-list": {
                             boolean[] print = {true, true, false, true, true, true};
-                            utils.printArray2(be.checkPosts(be.showLFSIDList(usr.getName(), "liked"),usr.getName()), "Like list", print, postColumns);
+                            utils.printArray2(be.checkPosts(be.showLFSIDList(usr.getName(), "liked"), usr.getName()), "Like list", print, postColumns);
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
                         case "show-my-favor-list": {
                             boolean[] print = {true, true, false, true, true, true};
-                            utils.printArray2(be.checkPosts(be.showLFSIDList(usr.getName(), "favored"),usr.getName()), "Favor list", print, postColumns);
+                            utils.printArray2(be.checkPosts(be.showLFSIDList(usr.getName(), "favored"), usr.getName()), "Favor list", print, postColumns);
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
                         case "show-my-share-list": {
                             boolean[] print = {true, true, false, true, true, true};
-                            utils.printArray2(be.checkPosts(be.showLFSIDList(usr.getName(), "shared"),usr.getName()), "Share list", print, postColumns);
+                            utils.printArray2(be.checkPosts(be.showLFSIDList(usr.getName(), "shared"), usr.getName()), "Share list", print, postColumns);
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
-                        case "show-hotList":{
+                        case "show-hotList": {
                             boolean[] print = {true, true, false, true, true, true};
-                            utils.printArray2(be.checkPosts(be.showHotlist(),usr.getName()), "Share list", print, postColumns);
+                            utils.printArray2(be.checkPosts(be.showHotlist(), usr.getName()), "Share list", print, postColumns);
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
                         case "follow": {
-                            System.out.println("Please input the account id you want to follow:");
+                            System.out.println("Please input the account name you want to follow:");
                             String name = utils.getWord(scanner);
                             if (be.ifFollowed(usr.getName(), name)) {
                                 System.out.println("You have followed this minion. Why you like him/her/it so much wuuuu.");
@@ -384,10 +425,12 @@ public class Application {
                         }
                         case "show-reply": {
                             boolean[] print = {true, false, true, true, true, true};
-                            if (be.showReplyIDs(post.getPostID()).size() == 0) {
+                            ArrayList<Integer> firstLevelReplyList = be.showReply(post.getPostID(), true);
+                            if (firstLevelReplyList.size() == 0) {
                                 System.out.println("There are no replies attached to this post.");
                             } else {
-                                utils.printArray2(be.checkReplies(be.showReplyIDs(post.getPostID()),usr.getName()), "Reply list", print, replyColumns);
+                                utils.printArray2(be.checkReplies(firstLevelReplyList, usr.getName()), "Reply list", print, replyColumns);
+                                System.out.printf("There are %d first-level reply to this post\n", firstLevelReplyList.size());
                                 System.out.println("Your can see reply detail by 'see-reply-detail'.");
                             }
                             break;
@@ -397,7 +440,11 @@ public class Application {
                             int id = Integer.parseInt(utils.getWord(scanner));
                             ArrayList<Integer> replyIDList = new ArrayList<>();
                             replyIDList.add(id);
-                            ArrayList<ArrayList<String>> replyInfo = be.checkReplies(replyIDList,usr.getName());
+                            ArrayList<ArrayList<String>> replyInfo = be.checkReplies(replyIDList, usr.getName());
+                            if (replyInfo.get(1).size() == 0) {
+                                System.out.println("Opps , it seems you can't see this post");
+                                stage = 3;
+                            } else
                             reply = new Reply(id, Integer.parseInt(replyInfo.get(1).get(0)), replyInfo.get(2).get(0), Integer.parseInt(replyInfo.get(3).get(0)), Integer.parseInt(replyInfo.get(4).get(0)), replyInfo.get(5).get(0));
                             stage = 5;
                             break;
@@ -412,7 +459,7 @@ public class Application {
                             boolean anonymous = Ano.equals("y") ? true : false;
 
 
-                            be.replyPost(-1, content, post.getPostID(), usr.getName(),anonymous);
+                            be.replyPost(-1, content, post.getPostID(), usr.getName(), anonymous);
                             System.out.println("You just replied to a post. Thank you!");
                             break;
                         }
@@ -446,11 +493,11 @@ public class Application {
                             break;
                         }
                         case "show-secondary-reply": {
-                            if (secondary) {
+                            ArrayList<Integer> secondaryReplyList = be.showReply(reply.getId(), false);
+                            if (secondaryReplyList.size() != 0) {
                                 boolean[] print = {true, false, true, true, true, true};
-                                ArrayList<Integer> replyIDList = new ArrayList<>();
-                                replyIDList.add(reply.getId()); // secondary reply id is positive
-                                utils.printArray2(be.checkReplies(replyIDList,usr.getName()), "Secondary reply list", print, replyColumns);
+                                utils.printArray2(be.checkReplies(secondaryReplyList, usr.getName()), "Secondary reply list", print, replyColumns);
+                                System.out.printf("There are %d secondary replies.\n", secondaryReplyList.size());
                                 System.out.println("Your can see reply detail by 'see-secondary-reply-detail'.");
                                 break;
                             } else {
@@ -463,7 +510,11 @@ public class Application {
                             int id = Integer.parseInt(utils.getWord(scanner));
                             ArrayList<Integer> replyIDList = new ArrayList<>();
                             replyIDList.add(id);
-                            ArrayList<ArrayList<String>> replyInfo = be.checkReplies(replyIDList,usr.getName());
+                            ArrayList<ArrayList<String>> replyInfo = be.checkReplies(replyIDList, usr.getName());
+                            if (replyInfo.get(1).size() == 0) {
+                                System.out.println("Opps , it seems you can't see this post");
+                                stage = 3;
+                            } else
                             reply = new Reply(id, Integer.parseInt(replyInfo.get(1).get(0)), replyInfo.get(2).get(0), Integer.parseInt(replyInfo.get(3).get(0)), Integer.parseInt(replyInfo.get(4).get(0)), replyInfo.get(5).get(0));
                             break;
                         }
@@ -477,7 +528,7 @@ public class Application {
                             String Ano = utils.getWord(scanner);
                             boolean anonymous = Ano.equals("y") ? true : false;
 
-                            be.replyPost(reply.getId(), content, post.getPostID(), usr.getName(),anonymous);
+                            be.replyPost(reply.getId(), content, post.getPostID(), usr.getName(), anonymous);
                             System.out.println("You just replied to a reply. Thank you!");
                             break;
                         }
