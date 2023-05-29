@@ -367,19 +367,50 @@ public class Backend {// 批处理
         return true;
     }
 
+
+    protected ArrayList<Integer> getPostIdLFS(String userName, String type) {
+        ArrayList<Integer> result = new ArrayList<>();
+        userName = userName.replaceAll("'", "''");
+        String sql = String.format("select post_id from %s where account_name = '%s';", type, userName);
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            resultSet = stmt.executeQuery(sql);
+            while (resultSet.next()) {
+                int postId = resultSet.getInt("post_id");
+                result.add(postId);
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /*
     Like 点赞帖子： 通过入参name和postID，在like表中记录相应的内容
         名称为name的用户点赞了对应postID的帖子
      */
     protected void lfsPost(String name, int postID, String type) {
         name = name.replaceAll("'", "''");
-        String sql = String.format("insert into %s(account_name,post_id) VALUES ('%s',%d);",
-                type, name, postID);
-        if (debug) System.out.println("Executing sql command: " + sql);
-        try {
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        ArrayList<Integer> LFSList = getPostIdLFS(name, type);
+        if (LFSList.contains(postID)) {
+            String sql = String.format("delete from %s where post_id = %d and account_name = '%s';",
+                    type, postID, name);
+            System.out.println(String.format("The %s relation is deleted",type));
+            if (debug) System.out.println("Executing sql command: " + sql);
+            try {
+                stmt.execute(sql);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            String sql = String.format("insert into %s(account_name,post_id) VALUES ('%s',%d);",
+                    type, name, postID);
+            if (debug) System.out.println("Executing sql command: " + sql);
+            try {
+                stmt.execute(sql);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -567,8 +598,8 @@ public class Backend {// 批处理
 
     protected ArrayList<String> getShieldAccount(String userName) {
         ArrayList<String> categoryNames = new ArrayList<>();
-        userName = userName.replaceAll("'","''");
-        String sql = String.format("select shielded_name from shielding where shielder_name = '%s';",userName);
+        userName = userName.replaceAll("'", "''");
+        String sql = String.format("select shielded_name from shielding where shielder_name = '%s';", userName);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
@@ -584,8 +615,8 @@ public class Backend {// 批处理
 
     protected ArrayList<String> getBlockedAccount(String userName) {
         ArrayList<String> categoryNames = new ArrayList<>();
-        userName = userName.replaceAll("'","''");
-        String sql = String.format("select blocked_name from block where blocker_name = '%s';",userName);
+        userName = userName.replaceAll("'", "''");
+        String sql = String.format("select blocked_name from block where blocker_name = '%s';", userName);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             resultSet = stmt.executeQuery(sql);
