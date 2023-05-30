@@ -1,23 +1,38 @@
 // package version2;// package project2;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.sql.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class Backend {// 批处理
     private static boolean debug;
     private static Statement stmt = null;
     private static Statement stmt1 = null;
+    private static Connection con = null;
+    private static PreparedStatement preparedStatement = null;
 
     private static ResultSet resultSet = null;
     private static ResultSet resultSet1 = null;
+
 
     public Backend(Connection con, Boolean debug) {//构造方法
         this.debug = debug;
         try {
             if (con != null && stmt == null && stmt1 == null) {
+                this.con = con;
                 stmt = con.createStatement();
                 stmt1 = con.createStatement();
+
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -416,7 +431,7 @@ public class Backend {// 批处理
         if (LFSList.contains(postID)) {
             String sql = String.format("delete from %s where post_id = %d and account_name = '%s';",
                     type, postID, name);
-            System.out.println(String.format("The %s relation is deleted",type));
+            System.out.println(String.format("The %s relation is deleted", type));
             if (debug) System.out.println("Executing sql command: " + sql);
             try {
                 stmt.execute(sql);
@@ -438,10 +453,17 @@ public class Backend {// 批处理
     /*
     post 发布帖子： 由两个函数组成，posting函数更新post表中的内容 同时category更新了post_category和category两张表的内容
      */
-    protected boolean post(String title, String content, String city, String name, ArrayList<String> categories, boolean Anonymous) {
+    protected boolean post(String title, String content, String city, String name, ArrayList<String> categories, boolean Anonymous, String op) {
         int postid = getMaxPostId() + 1;
         boolean succeedP = posting(postid, title, content, city, name, Anonymous);
         boolean succeedC = categorize(postid, categories);
+        if (op.equals("i")) upLoadPhoto(postid);
+        else if (op.equals("v")) uploadVideoInChunks(postid);
+        else if (op.equals("b")) {
+            upLoadPhoto(postid);
+            uploadVideoInChunks(postid);
+        }
+
         return succeedC && succeedP;
     }
 
@@ -594,6 +616,54 @@ public class Backend {// 批处理
             while (resultSet1.next()) {
                 String name = resultSet1.getString("name");
                 accountNames.add(name);
+            }
+            return accountNames;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected ArrayList<Integer> getAllPostIdsWithPhoto() {
+        ArrayList<Integer> accountNames = new ArrayList<>();
+        String sql = "select distinct post_id from photos;";
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            resultSet1 = stmt.executeQuery(sql);
+            while (resultSet1.next()) {
+                int postid = resultSet1.getInt("post_id");
+                accountNames.add(postid);
+            }
+            return accountNames;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected ArrayList<Integer> getAllPostIdsWithVideo() {
+        ArrayList<Integer> accountNames = new ArrayList<>();
+        String sql = "select distinct post_id from videos;";
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            resultSet1 = stmt.executeQuery(sql);
+            while (resultSet1.next()) {
+                int postid = resultSet1.getInt("post_id");
+                accountNames.add(postid);
+            }
+            return accountNames;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected ArrayList<Integer> getAllPostIdsWithBothPhotoAndVideo(){
+        ArrayList<Integer> accountNames = new ArrayList<>();
+        String sql = "select distinct v.post_id from photos join videos v on photos.post_id = v.post_id;";
+        if (debug) System.out.println("Executing sql command: " + sql);
+        try {
+            resultSet1 = stmt.executeQuery(sql);
+            while (resultSet1.next()) {
+                int postid = resultSet1.getInt("post_id");
+                accountNames.add(postid);
             }
             return accountNames;
         } catch (SQLException e) {
@@ -791,7 +861,7 @@ public class Backend {// 批处理
         City = City.replaceAll("'", "''");
         Author_name = Author_name.replaceAll("'", "''");
         String sql = "SELECT * FROM post WHERE 1 = 1";
-        if (keywords != "") sql += " and content like '%" + keywords + "%'";
+        if (keywords != "") sql += " and content like '%" + keywords + "%'  or title like '%" + keywords + "%'";
         if (start != "") sql += " and datetime >= '" + String.valueOf(Timestamp.valueOf(start)) + "'";
         if (end != "") sql += " and datetime <= '" + String.valueOf(Timestamp.valueOf(end)) + "'";
         if (City != "") sql += " and city like '%" + City + "%'";
@@ -845,5 +915,210 @@ public class Backend {// 批处理
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    protected static void upLoadPhoto(int postId) {
+        try {
+            // Prepare SQL statement
+            String sql = "INSERT INTO photos (data , post_id) VALUES (?,?)";
+            preparedStatement = con.prepareStatement(sql);
+
+            // Read photo data from local file
+            String filePath = chooseFile();
+            File photoFile = new File(filePath);
+            FileInputStream fis = new FileInputStream(photoFile);
+
+            // Set the photo data as a parameter
+            preparedStatement.setBinaryStream(1, fis);
+            preparedStatement.setInt(2, postId);
+
+            // Execute SQL statement
+            preparedStatement.executeUpdate();
+
+            // Close resources
+            preparedStatement.close();
+            fis.close();
+
+            System.out.println("Photo uploaded successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected static void retrieveAndDisplayPhotos(int postId) {
+        try {
+            // Prepare SQL statement
+            String sql = String.format("SELECT data FROM photos WHERE post_id = %d", postId);
+
+            // Execute SQL statement and retrieve the photo data
+            resultSet = stmt.executeQuery(sql);
+
+            // Create a list to store the photo file paths
+            List<String> filePaths = new ArrayList<>();
+
+            // Iterate over the result set
+            while (resultSet.next()) {
+                // Read the photo data from the result set
+                InputStream inputStream = resultSet.getBinaryStream("data");
+
+                // Specify the output file path
+                String outputPath = "output_" + System.currentTimeMillis() + ".jpg";
+
+                // Save the photo data as a file
+                Files.copy(inputStream, Paths.get(outputPath), StandardCopyOption.REPLACE_EXISTING);
+
+                // Add the file path to the list
+                filePaths.add(outputPath);
+            }
+
+            if (!filePaths.isEmpty()) {
+                // Display the photos
+                for (String filePath : filePaths) {
+                    Image image = ImageIO.read(new File(filePath));
+                    ImageIcon imageIcon = new ImageIcon(image);
+                    JOptionPane.showMessageDialog(null, imageIcon);
+                }
+            } else {
+                System.out.println("No photos found for postId: " + postId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected static void uploadVideoInChunks(int postId) {
+        try {
+            // Prepare SQL statement
+            String sql = "INSERT INTO videos (data , post_id) VALUES (?,?)";
+            preparedStatement = con.prepareStatement(sql);
+
+            // Read video file from local disk
+            String path = chooseFileVideo();
+            File videoFile = new File(path);
+            FileInputStream fis = new FileInputStream(videoFile);
+
+            // Set the video data as a parameter using setBinaryStream
+            preparedStatement.setBinaryStream(1, fis, videoFile.length());
+            preparedStatement.setInt(2, postId);
+
+            // Execute SQL statement to upload the video data
+            preparedStatement.executeUpdate();
+
+            // Close resources
+            preparedStatement.close();
+            fis.close();
+
+            System.out.println("Video uploaded successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected static void retrieveAndDisplayVideosWithStreamingChunks(int postId) {
+        int chunkSize = 4096; // Chunk size for reading video data
+        try {
+
+            // Prepare SQL statement
+            String sql = "SELECT data FROM videos WHERE post_id = ?";
+            preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setInt(1, postId);
+
+            // Execute SQL query
+            resultSet = preparedStatement.executeQuery();
+
+            // Read video data from result set
+            List<File> videoFiles = new ArrayList<>();
+            while (resultSet.next()) {
+                InputStream videoStream = resultSet.getBinaryStream("data");
+                BufferedInputStream bis = new BufferedInputStream(videoStream);
+
+                // Create a temporary file to store video data
+                File videoFile = File.createTempFile("temp_video", ".mp4");
+                FileOutputStream fos = new FileOutputStream(videoFile);
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+                // Read and write video data in chunks
+                byte[] buffer = new byte[chunkSize];
+                int bytesRead;
+                while ((bytesRead = bis.read(buffer)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                }
+
+                // Close resources
+                bos.close();
+                fos.close();
+                bis.close();
+                videoStream.close();
+
+                videoFiles.add(videoFile);
+            }
+
+
+            if (!videoFiles.isEmpty()) {
+                // Play the videos using a media player
+                for (File videoFile : videoFiles) {
+                    playVideo(videoFile);
+                }
+            } else {
+                System.out.println("No videos found for postId: " + postId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected static void playVideo(File videoFile) {
+        URI videoURI = videoFile.toURI();
+        try {
+            // 使用Desktop类打开视频URL
+            Desktop.getDesktop().browse(videoURI);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Playing video: " + videoFile.getName());
+        System.out.println("Video URL: " + videoURI);
+        // Replace this code with the appropriate code for your media player library
+    }
+
+    public static String chooseFile() {
+        // 创建文件选择器
+        JFileChooser fileChooser = new JFileChooser();
+
+        // 设置文件选择器的标题和初始目录
+        fileChooser.setDialogTitle("选择图片(.jpg格式)");
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+
+        // 显示文件选择器对话框
+        int result = fileChooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            // 获取选择的文件
+            File selectedFile = fileChooser.getSelectedFile();
+            return selectedFile.getAbsolutePath();
+        }
+
+        return null;
+    }
+
+    public static String chooseFileVideo() {
+        // 创建文件选择器
+        JFileChooser fileChooser = new JFileChooser();
+
+        // 设置文件选择器的标题和初始目录
+        fileChooser.setDialogTitle("选择视频(.mp4格式)");
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+
+        // 显示文件选择器对话框
+        int result = fileChooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            // 获取选择的文件
+            File selectedFile = fileChooser.getSelectedFile();
+            return selectedFile.getAbsolutePath();
+        }
+
+        return null;
     }
 }
