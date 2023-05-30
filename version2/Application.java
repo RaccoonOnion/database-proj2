@@ -135,30 +135,34 @@ public class Application {
                 }
                 case 3: {
                     String menu =
-                            "  1: 'show-my-block-list'\n" +
-                                    "  2: 'show-my-shield-list'\n" +
-                                    "  3: 'change-phone-pw'\n" +
-                                    "  4: 'show-post'\n" +
-                                    "  5: 'show-my-post'\n" +
-                                    "  6: 'show-post-detail'\n" +
-                                    "  7: 'show-my-reply'\n" +
-                                    "  8: 'search-post-by-multi-parameter'\n" +
-                                    "  9: 'show-replied-post'\n" +
-                                    " 10: 'show-my-follow-list'\n" +
-                                    " 11: 'show-my-like-list'\n" +
-                                    " 12: 'show-my-favor-list'\n" +
-                                    " 13: 'show-my-share-list'\n" +
-                                    " 14: 'show-hotList'\n" +
-                                    " 15: 'block'\n" +
-                                    " 16: 'shield'\n" +
-                                    " 17: 'unblock'\n" +
-                                    " 18: 'unshield'\n" +
-                                    " 19: 'follow'\n" +
-                                    " 20: 'unfollow'\n" +
-                                    " 21: 'post'\n" +
-                                    " 22: 'logoff'\n" +
-                                    " 23: 'show-my-phone'";
+                                    "  1: 'post'\n" +
+                                    "  2: 'show-post'\n" +
+                                    "  3: 'show-post-detail'\n" +
+                                    "  4: 'show-replied-post'\n" +
+                                    "  5: 'search-post-by-multi-parameter'\n" +
+                                    "  6: 'show-hotList'\n" +
+                                    "  7: 'show-post-with-photo'\n" +
+                                    "  8: 'show-post-with-video'\n" +
+                                    "  9: 'show-post-with-both-photo-and-video'\n" +
+                                    " 10: 'show-my-block-list'\n" +
+                                    " 11: 'show-my-shield-list'\n" +
+                                    " 12: 'show-my-post'\n" +
+                                    " 13: 'show-my-reply'\n" +
+                                    " 14: 'show-my-follow-list'\n" +
+                                    " 15: 'show-my-like-list'\n" +
+                                    " 16: 'show-my-favor-list'\n" +
+                                    " 17: 'show-my-share-list'\n" +
+                                    " 18: 'show-my-phone'\n"+
+                                    " 19: 'change-phone-pw'\n" +
+                                    " 20: 'block'\n" +
+                                    " 21: 'shield'\n" +
+                                    " 22: 'unblock'\n" +
+                                    " 23: 'unshield'\n" +
+                                    " 24: 'follow'\n" +
+                                    " 25: 'unfollow'\n" +
+                                    " 26: 'logoff'";
 
+                    {
                     String[] lines = menu.split("\n");
                     int maxLength = 0;
                     for (String line : lines) {
@@ -177,7 +181,7 @@ public class Application {
                     int lineLength = maxLength * 3 + 4;
                     int centerOffset = (lineLength - 10) / 2; // 计算居中偏移量
 
-                    String Header = "*" + "*".repeat(centerOffset - 1) + " Playground " + "*".repeat(centerOffset) + "*";
+                    String Header = "*" + "*".repeat(centerOffset - 1) + " Playground " + "*".repeat(centerOffset-1) + "*";
 
                     System.out.println(Header);
                     int count = 0;
@@ -195,15 +199,15 @@ public class Application {
                         System.out.println(" ".repeat((3 - (count % 3)) * (maxLength + 1)) + "*");
                     }
                     System.out.println(horizontalLine);
-
+                }
                     String action = utils.getWord(scanner);
 
                     switch (action) {
-                        case "show-my-phone", "23": {
+                        case "show-my-phone", "18": {
                             System.out.printf("Your phone number is: %s. Note that the default phone number is 12345678900. You can change it with change-phone-pw.\n", be.showMyPhone(usr.getName()).get(0));
                             break;
                         }
-                        case "change-phone-pw", "3": {
+                        case "change-phone-pw", "19": {
                             System.out.println("Please input the phone number and the password you want to change, separated by a space, end with new line.");
                             String phone = scanner.next();
                             String pw = utils.getWord(scanner);
@@ -215,47 +219,85 @@ public class Application {
                             }
                             break;
                         }
-                        case "unblock", "17": {
+                        case "unblock", "22": {
                             System.out.println("Please input the account id you want to unblock:");
                             String name = utils.getWord(scanner);
                             be.unBlockAccount(name, usr.getName());
                             System.out.println("You unblock a person, thank you!");
                             break;
                         }
-                        case "unshield", "18": {
+                        case "unshield", "23": {
                             System.out.println("Please input the account id you want to unshield:");
                             String name = utils.getWord(scanner);
                             be.unShieldAccount(name, usr.getName());
                             System.out.println("You unshield a person, thank you!");
                             break;
                         }
-                        case "block", "15": {
+                        case "block", "20": {
                             System.out.println("Please input the account id you want to block:");
                             String name = utils.getWord(scanner);
                             be.blockAccount(name, usr.getName());
                             System.out.println("You block a person, thank you!");
                             break;
                         }
-                        case "shield", "16": {
+                        case "shield", "21": {
                             System.out.println("Please input the account id you want to shield:");
                             String name = utils.getWord(scanner);
                             be.shieldAccount(name, usr.getName());
                             System.out.println("You shield a person, thank you!");
                             break;
                         }
-                        case "logoff", "22": {
+                        case "logoff", "26": {
                             System.out.println("Bye from playground!");
                             stage = 0;
                             break;
                         }
-                        case "show-post", "4":// TODO: show only the first n posts
+                        case "show-post", "2":// TODO: show only the first n posts
                         {
                             boolean[] print = {false, true, false, true, true, true};
-                            utils.printArray2(be.checkPosts(be.getAllPostIds(), usr.getName()), "post", print, postColumns);
+                            ArrayList<ArrayList<String>> temp = be.checkPosts(be.getAllPostIds(), usr.getName());
+
+                            int currentIndex = 0; // 当前索引位置
+
+                            String input = "next";
+                            boolean first = true;
+                            do {
+                                if (!first) {
+                                    System.out.print("Enter 'next' to print the ten values: ");
+                                    input = scanner.next();
+                                }
+                                if (input.equalsIgnoreCase("next")) {
+                                    int endIndex = Math.min(currentIndex + 10, temp.get(0).size());
+                                    if (currentIndex == endIndex){
+                                        System.out.println("There are no posts left");
+                                        break;
+                                    }
+                                    ArrayList<String> temp1 = new ArrayList<>(temp.get(0).subList(currentIndex,endIndex));
+                                    ArrayList<String> temp2 = new ArrayList<>(temp.get(1).subList(currentIndex,endIndex));
+                                    ArrayList<String> temp3 = new ArrayList<>(temp.get(2).subList(currentIndex,endIndex));
+                                    ArrayList<String> temp4 = new ArrayList<>(temp.get(3).subList(currentIndex,endIndex));
+                                    ArrayList<String> temp5 = new ArrayList<>(temp.get(4).subList(currentIndex,endIndex));
+                                    ArrayList<String> temp6 = new ArrayList<>(temp.get(5).subList(currentIndex,endIndex));
+
+                                    ArrayList<ArrayList<String>> out = new ArrayList<>();
+                                    out.add(temp1);
+                                    out.add(temp2);
+                                    out.add(temp3);
+                                    out.add(temp4);
+                                    out.add(temp5);
+                                    out.add(temp6);
+
+                                    utils.printArray2(out, "post", print, postColumns);
+                                    currentIndex = endIndex;
+                                }
+                                first = false;
+                            } while (input.equalsIgnoreCase("next"));
+
+
                             System.out.println("You can see the post detail with postID");
                             break;
                         }
-                        case "show-my-post", "5": {
+                        case "show-my-post", "12": {
                             ArrayList<ArrayList<String>> myPosts = be.checkPosts(be.showMyPostIDs(usr.getName()), usr.getName());
 //                            System.out.println("content" + myPosts);
                             if (myPosts.get(0).size() == 0) {
@@ -267,11 +309,22 @@ public class Application {
                             }
                             break;
                         }
-                        case "show-post-detail", "6": {
+                        case "show-post-detail", "3": {
                             stage = 4;
                             System.out.println("Please input the post ID you want to take a closer look.");
                             ArrayList<Integer> postIDs = new ArrayList<>(); // TODO: simplify
                             String[] input = utils.getWord(scanner).split(" ");
+                            ArrayList<Integer> postWithPhoto = be.getAllPostIdsWithPhoto();
+                            ArrayList<Integer> postWithVideo = be.getAllPostIdsWithVideo();
+                            int detail = Integer.parseInt(input[0]);
+                            boolean photo = postWithPhoto.contains(detail);
+                            boolean video = postWithVideo.contains(detail);
+                            if (photo && video){
+                                be.retrieveAndDisplayPhotos(detail);
+                                be.retrieveAndDisplayVideosWithStreamingChunks(detail);
+                            }
+                            else if (photo && !video) be.retrieveAndDisplayPhotos(detail);
+                            else if (!photo && video) be.retrieveAndDisplayVideosWithStreamingChunks(detail);
                             for (String id : input) {
                                 postIDs.add(Integer.parseInt(id));
                             }
@@ -283,7 +336,7 @@ public class Application {
                                 post = new Post(postIDs.get(0), postInfo.get(1).get(0), postInfo.get(2).get(0), postInfo.get(3).get(0), postInfo.get(4).get(0), postInfo.get(5).get(0));
                             break;
                         }
-                        case "search-post-by-multi-parameter", "8": {
+                        case "search-post-by-multi-parameter", "5": {
                             System.out.println("Please enter the keywords (enter an empty line if you don't want it)");
                             String keywords = scanner.nextLine();
                             System.out.println("Please enter the start and end time (enter an empty line if you don't want it)");
@@ -300,7 +353,7 @@ public class Application {
                             } else System.out.println("There is no such post");
                             break;
                         }
-                        case "show-my-reply", "7": {
+                        case "show-my-reply", "13": {
                             ArrayList<ArrayList<String>> myReplies = be.checkReplies(be.showMyReplyIDs(usr.getName()), usr.getName());
                             if (myReplies.get(0).size() == 0) {
                                 System.out.println("Oops! You have not replied to any post yet. Let start replying!");
@@ -311,7 +364,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "show-replied-post", "9": {
+                        case "show-replied-post", "4": {
                             ArrayList<ArrayList<String>> repliedPost = be.checkPosts(be.showMyRepliedPostIDs(usr.getName()), usr.getName());
 //                            System.out.println("content" + myPosts);
                             if (repliedPost.get(0).size() == 0) {
@@ -323,7 +376,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "show-my-follow-list", "10": {
+                        case "show-my-follow-list", "14": {
                             ArrayList<String> followList = be.showFollowNameList(usr.getName());
                             if (followList.size() == 0) {
                                 System.out.println("You have not followed anyone. Start following!");
@@ -332,7 +385,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "show-my-block-list", "1": {
+                        case "show-my-block-list", "10": {
                             boolean[] print = {true};
                             ArrayList<String> followList = be.getBlockedAccount(usr.getName());
                             if (followList.size() == 0) {
@@ -342,7 +395,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "show-my-shield-list", "2": {
+                        case "show-my-shield-list", "11": {
                             boolean[] print = {true};
                             ArrayList<String> followList = be.getShieldAccount(usr.getName());
                             if (followList.size() == 0) {
@@ -352,7 +405,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "show-my-like-list", "11": {
+                        case "show-my-like-list", "15": {
                             boolean[] print = {true, true, false, true, true, true};
                             ArrayList<ArrayList<String>> temp = be.checkPosts(be.showLFSIDList(usr.getName(), "liked"), usr.getName());
                             if (temp.get(0).size() == 0) {
@@ -363,7 +416,7 @@ public class Application {
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
-                        case "show-my-favor-list", "12": {
+                        case "show-my-favor-list", "16": {
                             boolean[] print = {true, true, false, true, true, true};
                             ArrayList<ArrayList<String>> temp = be.checkPosts(be.showLFSIDList(usr.getName(), "favored"), usr.getName());
                             if (temp.get(0).size() == 0) {
@@ -374,7 +427,7 @@ public class Application {
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
-                        case "show-my-share-list", "13": {
+                        case "show-my-share-list", "17": {
                             boolean[] print = {true, true, false, true, true, true};
                             ArrayList<ArrayList<String>> temp = be.checkPosts(be.showLFSIDList(usr.getName(), "shared"), usr.getName());
                             if (temp.get(0).size() == 0) {
@@ -385,13 +438,13 @@ public class Application {
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
-                        case "show-hotList", "14": {
+                        case "show-hotList", "6": {
                             boolean[] print = {true, true, false, true, true, true};
                             utils.printArray2(be.checkPosts(be.showHotlist(), usr.getName()), "Share list", print, postColumns);
                             System.out.println("You can take a deeper look with 'show-post-detail'");
                             break;
                         }
-                        case "follow", "19": {
+                        case "follow", "24": {
                             System.out.println("Please input the account name you want to follow:");
                             String name = utils.getWord(scanner);
                             if (be.ifFollowed(usr.getName(), name)) {
@@ -402,7 +455,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "unfollow", "20": {
+                        case "unfollow", "25": {
                             System.out.println("Please input the account name you want to unfollow:");
                             String name = utils.getWord(scanner);
                             if (!be.ifFollowed(usr.getName(), name)) {
@@ -413,7 +466,7 @@ public class Application {
                             }
                             break;
                         }
-                        case "post", "21": {
+                        case "post", "1": {
                             System.out.println("Please enter the title below:");
                             String title = utils.getLine(scanner);
                             System.out.println("Please enter the content below. End with an empty line.");
@@ -453,13 +506,52 @@ public class Application {
                             String Ano = utils.getWord(scanner);
                             boolean anonymous = Ano.equals("y") ? true : false;
 
+                            System.out.println("Do you want to attach any image or video to the post?(Enter 'i' to attach a photo , 'v' to attach a video \n 'b' for both of them and 'n' for no)");
+                            String op = utils.getWord(scanner);
+
                             boolean postSafe;
-                            postSafe = be.post(title, contentBuffer, city, usr.getName(), input, anonymous);
+                            postSafe = be.post(title, contentBuffer, city, usr.getName(), input, anonymous,op);
                             System.out.println("Hurry!!!!! You just post a post.");
 
                             if (!postSafe) {
                                 System.out.println("Something is wrong in our backend. Our sincere apology!");
                             }
+                        }
+                        case "show-post-with-photo", "7": {
+                            ArrayList<ArrayList<String>> myPosts = be.checkPosts(be.getAllPostIdsWithPhoto(), usr.getName());
+//                            System.out.println("content" + myPosts);
+                            if (myPosts.get(0).size() == 0) {
+                                System.out.println("Oops! There is no post with photo");
+                            } else {
+                                boolean[] print = {false, true, false, true, true, true};
+                                utils.printArray2(myPosts, "Posts with photo", print, postColumns);
+                                System.out.println("You can see the post detail with postID");
+                            }
+                            break;
+                        }
+                        case "show-post-with-video", "8": {
+                            ArrayList<ArrayList<String>> myPosts = be.checkPosts(be.getAllPostIdsWithVideo(), usr.getName());
+//                            System.out.println("content" + myPosts);
+                            if (myPosts.get(0).size() == 0) {
+                                System.out.println("Oops! There is no post with photo");
+                            } else {
+                                boolean[] print = {false, true, false, true, true, true};
+                                utils.printArray2(myPosts, "Posts with video", print, postColumns);
+                                System.out.println("You can see the post detail with postID");
+                            }
+                            break;
+                        }
+                        case "show-post-with-photo-and-video", "9": {
+                            ArrayList<ArrayList<String>> myPosts = be.checkPosts(be.getAllPostIdsWithBothPhotoAndVideo(), usr.getName());
+//                            System.out.println("content" + myPosts);
+                            if (myPosts.get(0).size() == 0) {
+                                System.out.println("Oops! There is no post with photo");
+                            } else {
+                                boolean[] print = {false, true, false, true, true, true};
+                                utils.printArray2(myPosts, "Posts with both photo and video", print, postColumns);
+                                System.out.println("You can see the post detail with postID");
+                            }
+                            break;
                         }
                     }
                     break;
