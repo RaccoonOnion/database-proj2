@@ -1,4 +1,4 @@
-// package version2;// package project2;
+package version2;// package project2;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -151,7 +151,7 @@ public class Backend {// 批处理
         ArrayList<Integer> replyIDList = new ArrayList<>();
         String sql;
         if (post) {
-            sql = String.format("SELECT id FROM reply WHERE post_id = %d and reply_id <= 0;",
+            sql = String.format("SELECT id FROM primaryReply WHERE post_id = %d;",
                     replyID);
         } else {
             sql = String.format("SELECT id FROM reply WHERE reply_id = %d and reply_id > 0;",
@@ -655,7 +655,7 @@ public class Backend {// 批处理
         }
     }
 
-    protected ArrayList<Integer> getAllPostIdsWithBothPhotoAndVideo(){
+    protected ArrayList<Integer> getAllPostIdsWithBothPhotoAndVideo() {
         ArrayList<Integer> accountNames = new ArrayList<>();
         String sql = "select distinct v.post_id from photos join videos v on photos.post_id = v.post_id;";
         if (debug) System.out.println("Executing sql command: " + sql);
@@ -819,7 +819,7 @@ public class Backend {// 批处理
     }
 
     protected void starReply(int id) {
-        String sql = String.format("update reply set stars = stars + 1 where id = %d;", id);
+        String sql = String.format("SELECT UpdateReplyStars(%d);", id);
         if (debug) System.out.println("Executing sql command: " + sql);
         try {
             stmt.execute(sql);

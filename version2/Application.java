@@ -1,4 +1,4 @@
-// package version2;//package project2;
+package version2;//package project2;
 
 import java.io.*;
 import java.util.*;
@@ -568,48 +568,49 @@ public class Application {
                                     "  7: 'reply'\n" +
                                     "  8: 'back'\n";
 
-                    String[] lines = menu.split("\n");
-                    int maxLength = 0;
-                    for (String line : lines) {
-                        maxLength = Math.max(maxLength, line.length());
-                    }
-
-                    String horizontalLine = "*" + "*".repeat(maxLength * 3 + 4) + "*";
-                    int lineLength = maxLength * 3 + 4;
-                    String heading = "PostId : " + String.valueOf(post.getPostID());
-                    int centerOffset = (lineLength - heading.length()) / 2;
-
-                    String Header = "*" + "*".repeat(centerOffset - 1) + " " + heading + " " + "*".repeat(centerOffset-1) + "*";
-
-                    System.out.println(Header);
-                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Title: " + post.getTitle()) + "   *");
-                    System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
-                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Content:") + "   *");
-                    printWrappedContent(post.getContent(), maxLength * 3);
-                    System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
-                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Author: " + post.getPost_account_name()) + "   *");
-                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "City: " + post.getCity()) + "   *");
-                    System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Time: " + post.getDatetime()) + "   *");
-                    System.out.println(horizontalLine);
-                    System.out.println();
-
-                    System.out.println(horizontalLine);
-                    int count = 0;
-                    for (String line : lines) {
-                        if (count % 3 == 0) {
-                            System.out.print("* ");
+                    {
+                        String[] lines = menu.split("\n");
+                        int maxLength = 0;
+                        for (String line : lines) {
+                            maxLength = Math.max(maxLength, line.length());
                         }
-                        System.out.print(String.format("%-" + maxLength + "s", line) + " ");
-                        count++;
-                        if (count % 3 == 0) {
-                            System.out.println("*");
-                        }
-                    }
-                    if (count % 3 != 0) {
-                        System.out.println(" ".repeat((3 - (count % 3)) * (maxLength + 1)) + "*");
-                    }
-                    System.out.println(horizontalLine);
 
+                        String horizontalLine = "*" + "*".repeat(maxLength * 3 + 4) + "*";
+                        int lineLength = maxLength * 3 + 4;
+                        String heading = "PostId : " + String.valueOf(post.getPostID());
+                        int centerOffset = (lineLength - heading.length()) / 2;
+
+                        String Header = "*" + "*".repeat(centerOffset - 1) + " " + heading + " " + "*".repeat(centerOffset - 1) + "*";
+
+                        System.out.println(Header);
+                        System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Title: " + post.getTitle()) + "   *");
+                        System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
+                        System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Content:") + "   *");
+                        printWrappedContent(post.getContent(), maxLength * 3);
+                        System.out.println("* " + " ".repeat(maxLength * 3 + 2) + " *");
+                        System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Author: " + post.getPost_account_name()) + "   *");
+                        System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "City: " + post.getCity()) + "   *");
+                        System.out.println("* " + String.format("%-" + maxLength * 3 + "s", "Time: " + post.getDatetime()) + "   *");
+                        System.out.println(horizontalLine);
+                        System.out.println();
+
+                        System.out.println(horizontalLine);
+                        int count = 0;
+                        for (String line : lines) {
+                            if (count % 3 == 0) {
+                                System.out.print("* ");
+                            }
+                            System.out.print(String.format("%-" + maxLength + "s", line) + " ");
+                            count++;
+                            if (count % 3 == 0) {
+                                System.out.println("*");
+                            }
+                        }
+                        if (count % 3 != 0) {
+                            System.out.println(" ".repeat((3 - (count % 3)) * (maxLength + 1)) + "*");
+                        }
+                        System.out.println(horizontalLine);
+                    }
                     String action = utils.getWord(scanner);
 
 
